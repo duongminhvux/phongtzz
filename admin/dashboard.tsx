@@ -372,7 +372,7 @@ export default function Dashboard() {
         <header className="flex items-center justify-between border-b bg-white px-4 py-4 md:px-8">
           <div>
             <h2 className="text-xl font-semibold">{sectionTitle(section)}</h2>
-            <p className="text-sm text-gray-500">FastAPI + PostgreSQL backend</p>
+            <p className="text-sm text-gray-500">RiverSide Heaven</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={loadAll} disabled={loading}>Refresh</Button>

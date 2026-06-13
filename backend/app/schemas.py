@@ -15,8 +15,16 @@ class AdminOut(BaseModel):
 
 
 class LoginIn(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=6, max_length=100)
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=1, max_length=72)
+
+    @field_validator('email')
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if '@' not in cleaned or cleaned.startswith('@') or cleaned.endswith('@'):
+            raise ValueError('Email is invalid')
+        return cleaned
 
 
 class TokenOut(BaseModel):

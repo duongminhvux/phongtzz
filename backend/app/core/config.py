@@ -2,8 +2,16 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _split_csv(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item.strip().rstrip('/') for item in value.split(',') if item.strip()]
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+    # Load root .env when running from repo root or from backend/ locally.
+    # Docker Compose still injects env vars directly from the root .env.
+    model_config = SettingsConfigDict(env_file=('.env', '../.env'), env_file_encoding='utf-8', extra='ignore')
 
     app_name: str = 'Phongtzzz Booking API'
     environment: str = 'development'
@@ -13,6 +21,7 @@ class Settings(BaseSettings):
     database_url: str = 'postgresql+psycopg2://postgres:postgres@localhost:5432/phongtzzz'
     frontend_url: str = 'http://localhost:5173'
     admin_url: str = 'http://localhost:3000'
+    cors_extra_origins: str | None = None
 
     admin_email: str = 'admin@phongtzzz.local'
     admin_password: str = 'admin123456'
@@ -33,7 +42,24 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [self.frontend_url, self.admin_url, 'http://localhost:5174']
+        origins = [
+            self.frontend_url,
+            self.admin_url,
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:3000',
+        ]
+        origins.extend(_split_csv(self.cors_extra_origins))
+
+        cleaned: list[str] = []
+        for origin in origins:
+            if not origin:
+                continue
+            normalized = origin.rstrip('/')
+            if normalized not in cleaned:
+                cleaned.append(normalized)
+        return cleaned
 
 
 @lru_cache

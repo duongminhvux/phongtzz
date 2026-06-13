@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.625rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #f7f5f2;
+    color: #111111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ép toàn bộ tiêu đề h1-h6 từ nay về sau bắt buộc ăn Bricolage Grotesque */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bricolage Grotesque', sans-serif !important;
+  }
+}
+
+@layer components {
+  /* Ép class .font-serif (mà bạn đang dùng cho tiêu đề lớn) chuyển hẳn ruột sang font mới */
+  .font-serif {
+    font-family: 'Bricolage Grotesque', sans-serif !important;
+  }
+
+  .font-sans {
+    font-family: 'Inter', sans-serif !important;
+  }
+
+  .btn-pill {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-500;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-pill:hover {
+    transform: scale(1.02);
+  }
+
+  .hairline-border {
+    border-color: rgba(17, 17, 17, 0.1);
+  }
+
+  .aperture-wrapper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+
+  .aperture-layer {
+    position: absolute;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .aperture-layer span {
+    display: inline-block;
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+  }
+
+  .clip-reveal-container {
+    clip-path: inset(30% 30% 0% 30%);
+    overflow: hidden;
+  }
+
+  .clip-reveal-container img {
+    transform: scale(1.4);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl px-4 py-3 font-sans text-sm outline-none transition-all duration-300 focus:ring-2 focus:ring-black/20;
+    background-color: #f7f5f2;
+    border: 1px solid transparent;
+  }
+
+}

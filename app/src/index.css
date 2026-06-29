@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,7 +41,7 @@
   }
 
   body {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--body-font, 'Inter', sans-serif) !important;
     background-color: #f7f5f2;
     color: #111111;
     -webkit-font-smoothing: antialiased;
@@ -48,18 +50,18 @@
 
   /* Ép toàn bộ tiêu đề h1-h6 từ nay về sau bắt buộc ăn Bricolage Grotesque */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Bricolage Grotesque', sans-serif !important;
+    font-family: var(--heading-font, 'Bricolage Grotesque', sans-serif) !important;
   }
 }
 
 @layer components {
   /* Ép class .font-serif (mà bạn đang dùng cho tiêu đề lớn) chuyển hẳn ruột sang font mới */
   .font-serif {
-    font-family: 'Bricolage Grotesque', sans-serif !important;
+    font-family: var(--heading-font, 'Bricolage Grotesque', sans-serif) !important;
   }
 
   .font-sans {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--body-font, 'Inter', sans-serif) !important;
   }
 
   .btn-pill {

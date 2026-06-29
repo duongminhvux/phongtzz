@@ -1,4 +1,5 @@
-import { defaultLandingPage, fallbackRooms } from '../data/defaultLanding'
+import { defaultLandingPage } from '../data/defaultLanding'
+import { normalizeLandingPage, normalizeRoom } from './media'
 import type { BookingRequestPayload, LandingPage, Room } from '../types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
@@ -27,18 +28,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export async function getLandingPage(): Promise<LandingPage> {
   try {
     const data = await request<{ value: LandingPage }>('/landing-page')
-    return data.value || defaultLandingPage
+    return normalizeLandingPage(data.value)
   } catch {
-    return defaultLandingPage
+    return normalizeLandingPage(defaultLandingPage)
   }
 }
 
 export async function getRooms(): Promise<Room[]> {
   try {
     const rooms = await request<Room[]>('/rooms')
-    return rooms.length ? rooms : fallbackRooms
+    return rooms.map(normalizeRoom)
   } catch {
-    return fallbackRooms
+    return []
   }
 }
 

@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.models import BookingStatus
@@ -33,6 +33,38 @@ class TokenOut(BaseModel):
     admin: AdminOut
 
 
+class MediaItem(BaseModel):
+    """A single uploaded media asset saved in JSONB.
+
+    Backward compatible with the old `images: ["url"]` shape via validators below.
+    """
+
+    url: str = Field(min_length=1, max_length=2000)
+    type: Literal['image', 'video'] = 'image'
+    public_id: str | None = Field(default=None, max_length=500)
+    width: int | None = None
+    height: int | None = None
+    format: str | None = Field(default=None, max_length=40)
+    alt: str | None = Field(default=None, max_length=255)
+    sort_order: int = 0
+
+
+def normalize_media_list(value: Any) -> list[dict[str, Any]]:
+    if not value:
+        return []
+    normalized: list[dict[str, Any]] = []
+    for index, item in enumerate(value):
+        if isinstance(item, str):
+            item_type = 'video' if item.lower().split('?')[0].endswith(('.mp4', '.webm', '.mov')) else 'image'
+            normalized.append({'url': item, 'type': item_type, 'sort_order': index})
+        elif isinstance(item, dict) and item.get('url'):
+            copied = dict(item)
+            copied.setdefault('type', 'image')
+            copied.setdefault('sort_order', index)
+            normalized.append(copied)
+    return sorted(normalized, key=lambda x: x.get('sort_order', 0))
+
+
 class RoomBase(BaseModel):
     name: str = Field(min_length=2, max_length=255)
     slug: str | None = Field(default=None, max_length=255)
@@ -46,14 +78,19 @@ class RoomBase(BaseModel):
     description: str | None = Field(default=None, max_length=3000)
     amenities: list[str] = Field(default_factory=list)
     highlights: list[str] = Field(default_factory=list)
-    images: list[str] = Field(default_factory=list)
+    images: list[MediaItem] = Field(default_factory=list)
     is_active: bool = True
     sort_order: int = 0
 
-    @field_validator('amenities', 'highlights', 'images')
+    @field_validator('amenities', 'highlights')
     @classmethod
     def clean_str_list(cls, value: list[str]) -> list[str]:
         return [item.strip() for item in value if item and item.strip()]
+
+    @field_validator('images', mode='before')
+    @classmethod
+    def clean_media_list(cls, value: Any) -> list[dict[str, Any]]:
+        return normalize_media_list(value)
 
 
 class RoomCreate(RoomBase):
@@ -73,9 +110,16 @@ class RoomUpdate(BaseModel):
     description: str | None = Field(default=None, max_length=3000)
     amenities: list[str] | None = None
     highlights: list[str] | None = None
-    images: list[str] | None = None
+    images: list[MediaItem] | None = None
     is_active: bool | None = None
     sort_order: int | None = None
+
+    @field_validator('images', mode='before')
+    @classmethod
+    def clean_media_list(cls, value: Any) -> list[dict[str, Any]] | None:
+        if value is None:
+            return None
+        return normalize_media_list(value)
 
 
 class RoomOut(RoomBase):

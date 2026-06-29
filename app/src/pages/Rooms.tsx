@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Bed, Check, ChevronLeft, ChevronRight, Star, Users, X } from 'lucide-react'
 import { getRooms } from '../lib/api'
+import { mediaUrl } from '../lib/media'
 import type { Room } from '../types/api'
 
 const formatPrice = (price?: number | null) => {
@@ -11,7 +12,7 @@ const formatPrice = (price?: number | null) => {
 
 function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => void }) {
   const [activeImage, setActiveImage] = useState(0)
-  const images = room.images?.length ? room.images : ['/images/room-deluxe.jpg']
+  const images = room.images?.length ? room.images : [{ url: '/images/room-deluxe.jpg', type: 'image' as const }]
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -29,7 +30,7 @@ function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => void })
         </button>
 
         <div className="relative" style={{ aspectRatio: '16/9' }}>
-          <img src={images[activeImage]} alt={room.name} className="h-full w-full object-cover" />
+          <img src={mediaUrl(images[activeImage], '/images/room-deluxe.jpg')} alt={room.name} className="h-full w-full object-cover" />
           {images.length > 1 && (
             <>
               <button onClick={prevImage} className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90">
@@ -135,7 +136,7 @@ export default function Rooms() {
             {filteredRooms.map((room) => (
               <button key={room.id} onClick={() => setSelectedRoom(room)} className="group text-left">
                 <div className="relative mb-5 overflow-hidden" style={{ borderRadius: 22, aspectRatio: '16/10' }}>
-                  <img src={room.images?.[0] || '/images/room-deluxe.jpg'} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={mediaUrl(room.images?.[0], '/images/room-deluxe.jpg')} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium backdrop-blur">{formatPrice(room.price)}</span>
                 </div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">

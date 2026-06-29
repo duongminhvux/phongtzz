@@ -1,3 +1,14 @@
+export type MediaItem = {
+  url: string
+  type?: 'image' | 'video'
+  public_id?: string | null
+  width?: number | null
+  height?: number | null
+  format?: string | null
+  alt?: string | null
+  sort_order?: number
+}
+
 export type Room = {
   id: string
   name: string
@@ -12,14 +23,28 @@ export type Room = {
   description?: string | null
   amenities: string[]
   highlights: string[]
-  images: string[]
+  images: MediaItem[]
   is_active: boolean
   sort_order: number
   created_at: string
   updated_at: string
 }
 
-export type LandingPage = Record<string, any>
+export type LandingSection = Record<string, any> & {
+  id: string
+  type: 'hero' | 'welcome' | 'experiences' | 'rooms' | 'amenities' | 'testimonials' | 'gallery' | 'banner' | 'cta'
+  enabled?: boolean
+  sort_order?: number
+}
+
+export type LandingPage = Record<string, any> & {
+  brand?: Record<string, any>
+  theme?: Record<string, any>
+  header?: Record<string, any>
+  footer?: Record<string, any>
+  contact?: Record<string, any>
+  sections?: LandingSection[]
+}
 
 export type BookingRequestPayload = {
   full_name: string

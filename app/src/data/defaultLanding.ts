@@ -1,4 +1,4 @@
-import type { LandingPage, Room } from '../types/api'
+import type { LandingPage } from '../types/api'
 
 export const defaultLandingPage: LandingPage = {
   brand: {
@@ -77,64 +77,3 @@ export const defaultLandingPage: LandingPage = {
     buttonLink: '/contact',
   },
 }
-
-export const fallbackRooms: Room[] = [
-  {
-    id: 'fallback-deluxe',
-    name: 'Deluxe Double Room',
-    slug: 'deluxe-double-room',
-    type: 'private',
-    price: 450000,
-    original_price: 550000,
-    capacity: 2,
-    beds: 1,
-    bed_type: 'Queen bed',
-    size: '28 m²',
-    description: 'A spacious private room with a comfortable queen bed, mountain views and modern amenities.',
-    amenities: ['Free WiFi', 'Private bathroom', 'Mountain view', 'Breakfast included'],
-    highlights: ['Popular', 'Private'],
-    images: ['/images/room-deluxe.jpg', '/images/pool-area.jpg'],
-    is_active: true,
-    sort_order: 1,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: 'fallback-dorm',
-    name: '4-Bed Dorm',
-    slug: '4-bed-dorm',
-    type: 'dorm',
-    price: 120000,
-    capacity: 4,
-    beds: 4,
-    bed_type: 'Bunk beds',
-    size: '32 m²',
-    description: 'A clean and social dorm room for budget travelers looking for comfort and community.',
-    amenities: ['Free WiFi', 'Shared bathroom', 'Locker'],
-    highlights: ['Budget', 'Social'],
-    images: ['/images/room-dorm.jpg'],
-    is_active: true,
-    sort_order: 2,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: 'fallback-bungalow',
-    name: 'Mountain Bungalow',
-    slug: 'mountain-bungalow',
-    type: 'private',
-    price: 650000,
-    capacity: 2,
-    beds: 1,
-    bed_type: 'King bed',
-    size: '36 m²',
-    description: 'A standalone bungalow with a private balcony and peaceful views across the valley.',
-    amenities: ['Free WiFi', 'Private bathroom', 'Private balcony'],
-    highlights: ['Best view', 'Private'],
-    images: ['/images/room-bungalow.jpg'],
-    is_active: true,
-    sort_order: 3,
-    created_at: '',
-    updated_at: '',
-  },
-]

@@ -59,8 +59,8 @@ export default function Contact() {
     })
   }, [])
 
-  const brand = landing.brand || defaultLandingPage.brand
-  const contact = landing.contact || defaultLandingPage.contact
+  const brand = (landing.brand || defaultLandingPage.brand || {}) as Record<string, any>
+  const contact = (landing.contact || defaultLandingPage.contact || {}) as Record<string, any>
   const minDate = useMemo(() => new Date().toISOString().split('T')[0], [])
 
   const update = (key: keyof FormState, value: string) => {

@@ -32,3 +32,13 @@ Admin mặc định lấy từ root `.env`:
 ADMIN_EMAIL=admin@phongtzzz.local
 ADMIN_PASSWORD=admin123456
 ```
+
+## Upload media
+
+Endpoint admin mới:
+
+- `POST /api/admin/uploads/media`: upload ảnh hoặc video.
+- Ảnh được convert sang `.webp` bằng Pillow trước khi đẩy Cloudinary.
+- Video được convert sang `.mp4` web/H.264 bằng FFmpeg trước khi đẩy Cloudinary.
+
+Khi chạy Docker, FFmpeg đã được cài trong image backend. Nếu chạy thủ công trên máy local và muốn upload video, cần cài `ffmpeg` trên máy trước.

@@ -79,7 +79,7 @@ function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => void })
             ))}
           </div>
 
-          <Link to={`/contact?roomId=${room.id}`} className="btn-pill flex w-full items-center justify-center bg-[#111] py-4 text-sm font-medium uppercase tracking-wider text-white">
+          <Link to={`/contact?roomId=${room.id}`} className="btn-pill flex w-full items-center justify-center py-4 text-sm font-medium uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
             Send Booking Request
           </Link>
           <p className="mt-3 text-center text-xs text-black/45">Homestay sẽ liên hệ lại để xác nhận tình trạng phòng.</p>
@@ -125,7 +125,7 @@ export default function Rooms() {
                 key={item.value}
                 onClick={() => setFilter(item.value)}
                 className="rounded-full px-5 py-2.5 font-sans text-xs uppercase tracking-wider transition-all"
-                style={{ backgroundColor: filter === item.value ? '#111' : '#fff', color: filter === item.value ? '#fff' : 'rgba(17,17,17,.65)' }}
+                style={{ backgroundColor: filter === item.value ? 'var(--primary-color, #111)' : '#fff', color: filter === item.value ? '#fff' : 'rgba(17,17,17,.65)' }}
               >
                 {item.label}
               </button>

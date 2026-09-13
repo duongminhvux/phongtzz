@@ -143,7 +143,7 @@ export default function Contact() {
                   </div>
                   <h3 className="font-serif text-3xl">{contact.successTitle || 'Request sent!'}</h3>
                   <p className="mt-3 max-w-md text-sm text-black/55" style={{ lineHeight: '24px' }}>{contact.successMessage}</p>
-                  <button onClick={() => setSubmitted(false)} className="btn-pill mt-8 bg-[#111] text-xs uppercase tracking-wider text-white">
+                  <button onClick={() => setSubmitted(false)} className="btn-pill mt-8 text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
                     Send another request
                   </button>
                 </div>
@@ -189,7 +189,7 @@ export default function Contact() {
 
                   {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
-                  <button disabled={submitting} type="submit" className="btn-pill flex w-full items-center justify-center gap-2 bg-[#111] py-4 text-sm font-medium uppercase tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-60">
+                  <button disabled={submitting} type="submit" className="btn-pill flex w-full items-center justify-center gap-2 py-4 text-sm font-medium uppercase tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-60" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
                     <Send size={15} />
                     {submitting ? 'Đang gửi...' : 'Gửi yêu cầu đặt phòng'}
                   </button>

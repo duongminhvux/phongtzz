@@ -62,7 +62,7 @@ export default function Navbar() {
           })}
         </div>
 
-        <Link to={header.ctaLink || '/contact'} className="btn-pill bg-[#111] text-xs uppercase tracking-wider text-white">
+        <Link to={header.ctaLink || '/contact'} className="btn-pill text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
           {header.ctaText || 'Book Now'}
         </Link>
       </div>

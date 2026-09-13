@@ -235,11 +235,11 @@ function BannerSection({ section }: { section: LandingSection }) {
 function CtaSection({ section }: { section: LandingSection }) {
   return (
     <section className="px-6 py-24">
-      <div className="mx-auto max-w-5xl rounded-[32px] bg-[#111] p-10 text-center text-white md:p-16">
+      <div className="mx-auto max-w-5xl rounded-[32px] p-10 text-center text-white md:p-16" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
         <MapPin className="mx-auto mb-5 text-white/70" size={30} />
         <h2 className="font-serif" style={{ fontSize: 'clamp(32px, 5vw, 68px)', lineHeight: 1.05 }}>{section.title}</h2>
         <p className="mx-auto mt-4 max-w-2xl text-white/70" style={{ lineHeight: '28px' }}>{section.description}</p>
-        {section.buttonText ? <Link to={section.buttonLink || '/contact'} className="btn-pill mt-8 bg-white text-xs uppercase tracking-wider text-black">{section.buttonText}</Link> : null}
+        {section.buttonText ? <Link to={section.buttonLink || '/contact'} className="btn-pill mt-8 bg-white text-xs uppercase tracking-wider" style={{ color: 'var(--primary-color, #111)' }}>{section.buttonText}</Link> : null}
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
 *.md
 *.json
 *.txt
-app/public/
+app/public

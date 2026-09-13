@@ -29,7 +29,7 @@ export default function Footer() {
           <div className="mb-16">
             <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(36px, 5vw, 78px)', lineHeight: '1.05' }}>{cta.title || 'Ready for your mountain stay?'}</h2>
             <p className="mt-4 max-w-2xl font-sans text-lg text-black/60">{cta.description}</p>
-            <Link to={cta.buttonLink || '/contact'} className="btn-pill mt-8 bg-[#111] text-xs uppercase tracking-wider text-white">{cta.buttonText || 'Send Booking Request'}</Link>
+            <Link to={cta.buttonLink || '/contact'} className="btn-pill mt-8 text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color)' }}>{cta.buttonText || 'Send Booking Request'}</Link>
           </div>
         ) : null}
 
@@ -62,7 +62,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-black/10 px-6 py-6 sm:flex-row">
-        <p className="font-sans text-xs text-black/40">Copyright 2026 &copy; {brand.name} Homestay. All rights reserved.</p>
+        <p className="font-sans text-xs text-black/40">{footer.copyrightText || `Copyright 2026 © ${brand.name} Homestay. All rights reserved.`}</p>
         <p className="font-sans text-xs text-black/40">{footer.bottomText || 'Booking request website'}</p>
       </div>
     </footer>

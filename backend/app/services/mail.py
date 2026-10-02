@@ -45,3 +45,46 @@ Vào admin panel để cập nhật trạng thái xử lý.
         if settings.smtp_user and settings.smtp_password:
             server.login(settings.smtp_user, settings.smtp_password)
         server.send_message(msg)
+
+
+def send_tour_booking_request_email(booking) -> None:
+    settings = get_settings()
+    if not settings.smtp_host:
+        return
+
+    snapshot = booking.tour_snapshot or {}
+    tour_name = booking.tour.name if getattr(booking, 'tour', None) else snapshot.get('name') or 'Tour'
+    addon_text = ', '.join(item.get('name', '') for item in (booking.addons or []) if item.get('name')) or '-'
+    subject = f'Yêu cầu đặt tour mới - {booking.full_name} - {tour_name}'
+    body = f"""
+Có yêu cầu đặt tour mới từ website.
+
+Khách: {booking.full_name}
+Email: {booking.email}
+WhatsApp: {booking.whatsapp}
+Tour: {tour_name}
+Ngày bắt đầu: {_format_date(booking.start_date)}
+Số khách: {booking.guests}
+Riding option: {snapshot.get('riding_option_label') or booking.riding_option}
+Bus transfer: {snapshot.get('bus_transfer_label') or booking.bus_transfer}
+Add-ons: {addon_text}
+Dietary requirements: {booking.dietary_requirements or '-'}
+Ghi chú khách: {booking.notes or '-'}
+Nguồn: {booking.source or '-'}
+Page URL: {booking.page_url or '-'}
+
+Vào admin panel > Tour Bookings để xử lý.
+""".strip()
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = f'{settings.smtp_from_name} <{settings.smtp_from_email}>'
+    msg['To'] = settings.homestay_email
+    msg.set_content(body)
+
+    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as server:
+        if settings.smtp_use_tls:
+            server.starttls()
+        if settings.smtp_user and settings.smtp_password:
+            server.login(settings.smtp_user, settings.smtp_password)
+        server.send_message(msg)

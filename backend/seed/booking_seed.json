@@ -1,0 +1,962 @@
+{
+  "landing": {
+    "brand": {
+      "name": "Riverside Haven",
+      "logoText": "Riverside Haven",
+      "phone": "+84 983 393 954",
+      "email": "stayhostelbar@gmail.com",
+      "address": "Thon Coc Pang Km0, Du Gia, Ha Giang, Vietnam",
+      "facebookUrl": "#",
+      "instagramUrl": "#",
+      "mapEmbedUrl": "",
+      "logo": null
+    },
+    "theme": {
+      "fontFamily": "Inter, Arial, sans-serif",
+      "headingFont": "Georgia, serif",
+      "primaryColor": "#111111",
+      "backgroundColor": "#f7f5f2"
+    },
+    "header": {
+      "ctaText": "Book Now",
+      "ctaLink": "/tours",
+      "navItems": [
+        {
+          "label": "Home",
+          "path": "/"
+        },
+        {
+          "label": "Rooms",
+          "path": "/rooms"
+        },
+        {
+          "label": "Tours",
+          "path": "/tours"
+        },
+        {
+          "label": "Booking Request",
+          "path": "/contact"
+        }
+      ]
+    },
+    "footer": {
+      "showCta": true,
+      "bottomText": "Booking request website",
+      "quickLinksTitle": "Quick links",
+      "contactTitle": "Contact Us",
+      "socialTitle": "Follow Us",
+      "copyrightText": "Copyright 2026 © Riverside Haven. All rights reserved.",
+      "mapEmbedUrl": ""
+    },
+    "contact": {
+      "title": "Send a booking request",
+      "description": "Tell us your travel dates. We will contact you to confirm room availability and complete the booking.",
+      "successTitle": "Request sent!",
+      "successMessage": "Thank you. Our homestay will contact you soon to confirm availability.",
+      "eyebrow": "Booking Request",
+      "infoTitle": "Contact info",
+      "infoDescription": "Web chỉ nhận yêu cầu đặt phòng. Homestay sẽ liên hệ ngoài để xác nhận phòng trống và hoàn tất booking.",
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email",
+      "submitText": "Gửi yêu cầu đặt phòng",
+      "submittingText": "Đang gửi...",
+      "submitNote": "Homestay sẽ liên hệ lại để xác nhận tình trạng phòng và hoàn tất đặt phòng.",
+      "sendAnotherText": "Send another request"
+    },
+    "sections": [
+      {
+        "id": "hero-main",
+        "type": "hero",
+        "enabled": true,
+        "sort_order": 1,
+        "title": "Riverside Haven",
+        "subtitle": "Your sanctuary on the Ha Giang Loop. Where mountain serenity meets authentic local culture.",
+        "primaryButtonText": "Explore Rooms",
+        "primaryButtonLink": "/rooms",
+        "secondaryButtonText": "Book Request",
+        "secondaryButtonLink": "/contact",
+        "video": {
+          "url": "/uploads/seed/hero-coast.mp4",
+          "type": "video",
+          "sort_order": 0,
+          "alt": ""
+        },
+        "image": null
+      },
+      {
+        "id": "welcome-main",
+        "type": "welcome",
+        "enabled": true,
+        "sort_order": 2,
+        "eyebrow": "Welcome to Riverside Haven",
+        "title": "A peaceful base for your Ha Giang journey",
+        "paragraphs": [
+          "Nestled among mountains and rice fields, Riverside Haven is designed for travelers who want comfort, local culture and a slower pace after long riding days.",
+          "Wake up to fresh air, share meals with new friends and let our team help you plan the next leg of your loop."
+        ],
+        "images": [
+          {
+            "url": "/uploads/seed/gallery-landscape-1.jpg",
+            "type": "image",
+            "sort_order": 0,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/gallery-guest-1.jpg",
+            "type": "image",
+            "sort_order": 1,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/pool-area.jpg",
+            "type": "image",
+            "sort_order": 2,
+            "alt": ""
+          }
+        ]
+      },
+      {
+        "id": "experiences-main",
+        "type": "experiences",
+        "enabled": true,
+        "sort_order": 3,
+        "title": "Experience Du Gia",
+        "description": "Discover local food, mountain routes, craft culture and quiet corners around the village.",
+        "items": [
+          {
+            "title": "Mountain Trekking",
+            "description": "Guided walks through rice terraces, waterfalls and hidden viewpoints.",
+            "image": {
+              "url": "/uploads/seed/trekking-path.jpg",
+              "type": "image",
+              "sort_order": 0,
+              "alt": ""
+            }
+          },
+          {
+            "title": "Local Dining",
+            "description": "Home-style dinners and regional dishes prepared with local ingredients.",
+            "image": {
+              "url": "/uploads/seed/food-dining.jpg",
+              "type": "image",
+              "sort_order": 0,
+              "alt": ""
+            }
+          },
+          {
+            "title": "Culture & Craft",
+            "description": "Meet local families and learn about traditional weaving and village life.",
+            "image": {
+              "url": "/uploads/seed/culture-weaving.jpg",
+              "type": "image",
+              "sort_order": 0,
+              "alt": ""
+            }
+          }
+        ]
+      },
+      {
+        "id": "tours-main",
+        "type": "cta",
+        "enabled": true,
+        "sort_order": 4,
+        "title": "Ride the Ha Giang Loop with local guides",
+        "description": "Choose a 2, 3 or 4 day motorbike adventure and let our local team handle the route, meals, homestays and support.",
+        "buttonText": "Explore Tours",
+        "buttonLink": "/tours"
+      },
+      {
+        "id": "rooms-main",
+        "type": "rooms",
+        "enabled": true,
+        "sort_order": 5,
+        "title": "Our Rooms",
+        "description": "From cozy dorms to private bungalows, find the perfect space for your mountain retreat.",
+        "buttonText": "View all rooms",
+        "buttonLink": "/rooms",
+        "limit": 3,
+        "roomIds": []
+      },
+      {
+        "id": "amenities-main",
+        "type": "amenities",
+        "enabled": true,
+        "sort_order": 6,
+        "title": "Everything You Need",
+        "items": [
+          {
+            "title": "Free WiFi",
+            "description": "Stay connected throughout the property."
+          },
+          {
+            "title": "Breakfast",
+            "description": "Start the day with fresh local food."
+          },
+          {
+            "title": "Motorbike Support",
+            "description": "Route advice, parking and local help."
+          },
+          {
+            "title": "Laundry",
+            "description": "Simple laundry service for loop travelers."
+          }
+        ]
+      },
+      {
+        "id": "testimonials-main",
+        "type": "testimonials",
+        "enabled": true,
+        "sort_order": 7,
+        "title": "Guest Stories",
+        "items": [
+          {
+            "name": "Mia",
+            "country": "Australia",
+            "rating": 5,
+            "text": "Beautiful location, kind staff and exactly what we needed after a long day riding."
+          },
+          {
+            "name": "Lucas",
+            "country": "Germany",
+            "rating": 5,
+            "text": "The family dinner and mountain view made this one of our favorite stays in Vietnam."
+          }
+        ]
+      },
+      {
+        "id": "gallery-main",
+        "type": "gallery",
+        "enabled": true,
+        "sort_order": 8,
+        "title": "Moments at Riverside Haven",
+        "images": [
+          {
+            "url": "/uploads/seed/gallery-dining.jpg",
+            "type": "image",
+            "sort_order": 0,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/gallery-guest-1.jpg",
+            "type": "image",
+            "sort_order": 1,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/gallery-guest-2.jpg",
+            "type": "image",
+            "sort_order": 2,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/gallery-yoga.jpg",
+            "type": "image",
+            "sort_order": 3,
+            "alt": ""
+          },
+          {
+            "url": "/uploads/seed/gallery-landscape-1.jpg",
+            "type": "image",
+            "sort_order": 4,
+            "alt": ""
+          }
+        ]
+      },
+      {
+        "id": "cta-main",
+        "type": "cta",
+        "enabled": true,
+        "sort_order": 9,
+        "title": "Ready for your mountain stay?",
+        "description": "Send a booking request and our team will get back to you as soon as possible.",
+        "buttonText": "Send Booking Request",
+        "buttonLink": "/contact"
+      }
+    ],
+    "roomsPage": {
+      "eyebrow": "Booking Request",
+      "title": "Rooms",
+      "description": "Find your perfect mountain retreat. Send a request and we will contact you to confirm room availability.",
+      "filters": [
+        {
+          "value": "all",
+          "label": "All Rooms"
+        },
+        {
+          "value": "private",
+          "label": "Private"
+        },
+        {
+          "value": "dorm",
+          "label": "Dorms"
+        }
+      ],
+      "emptyImageText": "Chưa có ảnh phòng",
+      "bookingOnlyText": "Booking request only",
+      "amenitiesTitle": "Amenities",
+      "bookingButtonText": "Send Booking Request",
+      "bookingNote": "Homestay sẽ liên hệ lại để xác nhận tình trạng phòng.",
+      "contactPriceText": "Contact us",
+      "priceSuffix": "VND/night",
+      "guestsSuffix": "guests",
+      "bedFallback": "bed",
+      "noRoomsText": "Hiện chưa có phòng nào để hiển thị."
+    }
+  },
+  "rooms": [
+    {
+      "name": "Deluxe Double Room",
+      "slug": "deluxe-double-room",
+      "type": "private",
+      "price": 450000,
+      "original_price": 550000,
+      "capacity": 2,
+      "beds": 1,
+      "bed_type": "Queen bed",
+      "size": "28 m²",
+      "description": "A spacious private room with a comfortable queen bed, mountain views and modern amenities.",
+      "amenities": [
+        "Free WiFi",
+        "Private bathroom",
+        "Mountain view",
+        "Breakfast included"
+      ],
+      "highlights": [
+        "Popular",
+        "Private"
+      ],
+      "images": [
+        {
+          "url": "/uploads/seed/room-deluxe.jpg",
+          "type": "image",
+          "sort_order": 0,
+          "alt": ""
+        },
+        {
+          "url": "/uploads/seed/pool-area.jpg",
+          "type": "image",
+          "sort_order": 1,
+          "alt": ""
+        },
+        {
+          "url": "/uploads/seed/food-dining.jpg",
+          "type": "image",
+          "sort_order": 2,
+          "alt": ""
+        }
+      ],
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "name": "4-Bed Dorm",
+      "slug": "4-bed-dorm",
+      "type": "dorm",
+      "price": 120000,
+      "capacity": 4,
+      "beds": 4,
+      "bed_type": "Bunk beds",
+      "size": "32 m²",
+      "description": "A clean and social dorm room for budget travelers looking for comfort and community.",
+      "amenities": [
+        "Free WiFi",
+        "Shared bathroom",
+        "Locker",
+        "Breakfast available"
+      ],
+      "highlights": [
+        "Budget",
+        "Social"
+      ],
+      "images": [
+        {
+          "url": "/uploads/seed/room-dorm.jpg",
+          "type": "image",
+          "sort_order": 0,
+          "alt": ""
+        },
+        {
+          "url": "/uploads/seed/gallery-guest-1.jpg",
+          "type": "image",
+          "sort_order": 1,
+          "alt": ""
+        }
+      ],
+      "is_active": true,
+      "sort_order": 2
+    },
+    {
+      "name": "Mountain Bungalow",
+      "slug": "mountain-bungalow",
+      "type": "private",
+      "price": 650000,
+      "capacity": 2,
+      "beds": 1,
+      "bed_type": "King bed",
+      "size": "36 m²",
+      "description": "A standalone bungalow with a private balcony and peaceful views across the valley.",
+      "amenities": [
+        "Free WiFi",
+        "Private bathroom",
+        "Private balcony",
+        "Breakfast included"
+      ],
+      "highlights": [
+        "Best view",
+        "Private"
+      ],
+      "images": [
+        {
+          "url": "/uploads/seed/room-bungalow.jpg",
+          "type": "image",
+          "sort_order": 0,
+          "alt": ""
+        },
+        {
+          "url": "/uploads/seed/gallery-landscape-1.jpg",
+          "type": "image",
+          "sort_order": 1,
+          "alt": ""
+        }
+      ],
+      "is_active": true,
+      "sort_order": 3
+    }
+  ],
+  "toursPage": {
+    "eyebrow": "Ha Giang Loop Tours",
+    "heroTitle": "Ha Giang Loop Motorbike Adventure",
+    "heroSlogan": "Ride. Explore. Connect.",
+    "heroDescription": "Conquer dramatic mountain passes, cruise above the Nho Que River and connect with local communities on a small-group adventure led by our Ha Giang team.",
+    "heroImage": {
+      "url": "/uploads/seed/gallery-landscape-1.jpg",
+      "type": "image",
+      "sort_order": 0,
+      "alt": "Ha Giang mountain landscape"
+    },
+    "packagesTitle": "Choose Your Loop",
+    "packagesDescription": "Three routes built around how much time you have and how deep you want to explore.",
+    "includedTitle": "What's Included",
+    "includedItems": [
+      "VIP cabin bus transfer Hanoi ↔ Ha Giang",
+      "Quality 150cc motorbike and fuel",
+      "Helmet and protective riding gear",
+      "Local Easy Rider / English-speaking guide",
+      "Homestay accommodation along the loop",
+      "Meals included in the itinerary"
+    ],
+    "whyTitle": "Built for international travellers",
+    "whyItems": [
+      {
+        "title": "Local knowledge",
+        "description": "Ride with a team that knows the roads, weather, villages and best photo stops."
+      },
+      {
+        "title": "Flexible pace",
+        "description": "Enough riding to feel adventurous, with breaks for viewpoints, food and local culture."
+      },
+      {
+        "title": "Support from start to finish",
+        "description": "From Hanoi transfer to accommodation and route support, we keep the logistics simple."
+      }
+    ],
+    "galleryTitle": "Life on the Loop",
+    "gallery": [
+      {
+        "url": "/uploads/seed/gallery-guest-1.jpg",
+        "type": "image",
+        "sort_order": 0,
+        "alt": "Travellers on the Ha Giang Loop"
+      },
+      {
+        "url": "/uploads/seed/gallery-landscape-1.jpg",
+        "type": "image",
+        "sort_order": 1,
+        "alt": "Ha Giang mountain road"
+      },
+      {
+        "url": "/uploads/seed/gallery-guest-2.jpg",
+        "type": "image",
+        "sort_order": 2,
+        "alt": "Guests in Ha Giang"
+      },
+      {
+        "url": "/uploads/seed/food-dining.jpg",
+        "type": "image",
+        "sort_order": 3,
+        "alt": "Local dinner"
+      }
+    ],
+    "reviewsTitle": "Guest Stories",
+    "reviews": [
+      {
+        "name": "Sophie",
+        "country": "United Kingdom",
+        "rating": 5,
+        "text": "The loop was the highlight of our Vietnam trip. Our Easy Riders were safe, funny and knew every viewpoint."
+      },
+      {
+        "name": "Daniel",
+        "country": "Netherlands",
+        "rating": 5,
+        "text": "Perfect mix of riding, local food and homestays. The team made the whole trip feel easy."
+      }
+    ],
+    "faqTitle": "Before You Ride",
+    "faq": [
+      {
+        "question": "Do I need to ride myself?",
+        "answer": "No. Easy Rider means you travel as a passenger with an experienced local driver and is the recommended option for most guests."
+      },
+      {
+        "question": "Can I self-drive?",
+        "answer": "Self-driving is available for eligible riders. You are responsible for having the legally required licence and riding experience."
+      },
+      {
+        "question": "What happens if it rains?",
+        "answer": "Tours normally continue with route and timing adjustments when needed. Safety decisions are made by the local guide team."
+      },
+      {
+        "question": "Can you handle vegetarian meals?",
+        "answer": "Yes. Add dietary requirements to your booking request and our team will plan meals with the homestays."
+      },
+      {
+        "question": "Where can I leave my large luggage?",
+        "answer": "Guests can leave larger luggage at Riverside Haven while riding the loop."
+      }
+    ],
+    "bookingTitle": "Ready to ride the loop?",
+    "bookingDescription": "Send a tour booking request. We will confirm availability and contact you by email or WhatsApp.",
+    "bookingButtonText": "Book a Tour"
+  },
+  "tours": [
+    {
+      "name": "The Express Loop",
+      "slug": "express-loop",
+      "tagline": "Big views, short schedule",
+      "short_description": "A fast two-day route for travellers with limited time, focused on the signature passes and viewpoints.",
+      "description": "Ride the essential northern Ha Giang highlights with an efficient overnight route designed to maximise scenery without rushing the important stops.",
+      "duration_days": 2,
+      "duration_nights": 1,
+      "price": 90,
+      "currency": "USD",
+      "is_featured": false,
+      "is_active": true,
+      "sort_order": 1,
+      "highlights": [
+        "Quan Ba Heaven Gate",
+        "Dong Van Karst Plateau",
+        "Ma Pi Leng Pass",
+        "Nho Que River viewpoints"
+      ],
+      "inclusions": [
+        "VIP cabin bus Hanoi ↔ Ha Giang",
+        "150cc motorbike and fuel",
+        "Helmet and protective gear",
+        "Easy Rider / local English-speaking guide",
+        "Homestays during the loop",
+        "Meals listed in the itinerary"
+      ],
+      "exclusions": [
+        "Personal travel insurance",
+        "Alcohol and personal expenses"
+      ],
+      "riding_options": [
+        {
+          "value": "easy-rider",
+          "label": "Easy-Rider",
+          "description": "Ride as a passenger with your own experienced local driver. Recommended.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": true
+        },
+        {
+          "value": "self-driving",
+          "label": "Self-Driving",
+          "description": "Ride your own motorbike. Valid licence and riding experience may be required.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": false
+        }
+      ],
+      "bus_options": [
+        {
+          "value": "hanoi-round-trip",
+          "label": "Round-trip VIP cabin bus Hanoi ↔ Ha Giang",
+          "description": "Included in the standard tour package.",
+          "price_modifier": 0,
+          "currency": "USD"
+        },
+        {
+          "value": "self-arranged",
+          "label": "I will arrange my own transport to Riverside Haven",
+          "description": "Meet the team in Ha Giang.",
+          "price_modifier": 0,
+          "currency": "USD"
+        }
+      ],
+      "faq": [
+        {
+          "question": "Who is this tour best for?",
+          "answer": "Travellers who only have two days but still want the core Ha Giang Loop scenery."
+        }
+      ],
+      "itinerary": [
+        {
+          "day_number": 1,
+          "title": "Ha Giang → Yen Minh → Dong Van",
+          "description": "Start early, cross mountain passes and karst valleys before an evening in Dong Van.",
+          "stops": [
+            "Quan Ba Heaven Gate",
+            "Twin Mountains",
+            "Can Ty Pass",
+            "Dong Van Old Quarter"
+          ]
+        },
+        {
+          "day_number": 2,
+          "title": "Dong Van → Ma Pi Leng → Ha Giang",
+          "description": "Ride the legendary Ma Pi Leng Pass, stop above the Nho Que River and return to Ha Giang.",
+          "stops": [
+            "Ma Pi Leng Pass",
+            "Nho Que viewpoints",
+            "Meo Vac",
+            "Ha Giang"
+          ]
+        }
+      ],
+      "media": [
+        {
+          "url": "/uploads/seed/trekking-path.jpg",
+          "type": "image",
+          "role": "hero",
+          "sort_order": 0,
+          "alt": "Express Loop mountain road"
+        },
+        {
+          "url": "/uploads/seed/gallery-landscape-1.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 0,
+          "alt": "Ha Giang landscape"
+        },
+        {
+          "url": "/uploads/seed/gallery-guest-1.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 1,
+          "alt": "Loop guests"
+        }
+      ]
+    },
+    {
+      "name": "The Classic Loop",
+      "slug": "classic-loop",
+      "tagline": "The balanced Ha Giang experience",
+      "short_description": "Our most popular three-day loop, balancing iconic roads, local culture and enough time to enjoy every stop.",
+      "description": "The classic itinerary gives the mountains room to breathe: famous passes, riverside views, village stops and two nights in local homestays.",
+      "duration_days": 3,
+      "duration_nights": 2,
+      "price": 150,
+      "currency": "USD",
+      "is_featured": true,
+      "is_active": true,
+      "sort_order": 2,
+      "highlights": [
+        "Quan Ba",
+        "Dong Van",
+        "Ma Pi Leng Pass",
+        "Meo Vac",
+        "Local village homestays"
+      ],
+      "inclusions": [
+        "VIP cabin bus Hanoi ↔ Ha Giang",
+        "150cc motorbike and fuel",
+        "Helmet and protective gear",
+        "Easy Rider / local English-speaking guide",
+        "Homestays during the loop",
+        "Meals listed in the itinerary"
+      ],
+      "exclusions": [
+        "Personal travel insurance",
+        "Alcohol and personal expenses"
+      ],
+      "riding_options": [
+        {
+          "value": "easy-rider",
+          "label": "Easy-Rider",
+          "description": "Ride as a passenger with your own experienced local driver. Recommended.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": true
+        },
+        {
+          "value": "self-driving",
+          "label": "Self-Driving",
+          "description": "Ride your own motorbike. Valid licence and riding experience may be required.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": false
+        }
+      ],
+      "bus_options": [
+        {
+          "value": "hanoi-round-trip",
+          "label": "Round-trip VIP cabin bus Hanoi ↔ Ha Giang",
+          "description": "Included in the standard tour package.",
+          "price_modifier": 0,
+          "currency": "USD"
+        },
+        {
+          "value": "self-arranged",
+          "label": "I will arrange my own transport to Riverside Haven",
+          "description": "Meet the team in Ha Giang.",
+          "price_modifier": 0,
+          "currency": "USD"
+        }
+      ],
+      "faq": [
+        {
+          "question": "Why choose the Classic Loop?",
+          "answer": "Three days gives a comfortable balance between riding time, viewpoints, village visits and rest."
+        }
+      ],
+      "itinerary": [
+        {
+          "day_number": 1,
+          "title": "Ha Giang → Quan Ba → Yen Minh",
+          "description": "Ease into the loop through limestone valleys and mountain gates.",
+          "stops": [
+            "Bac Sum Pass",
+            "Quan Ba Heaven Gate",
+            "Twin Mountains",
+            "Yen Minh"
+          ]
+        },
+        {
+          "day_number": 2,
+          "title": "Yen Minh → Dong Van → Ma Pi Leng → Meo Vac",
+          "description": "The signature day: high karst roads, Dong Van and the dramatic Ma Pi Leng Pass.",
+          "stops": [
+            "Tham Ma Pass",
+            "Hmong King Palace area",
+            "Dong Van",
+            "Ma Pi Leng Pass",
+            "Meo Vac"
+          ]
+        },
+        {
+          "day_number": 3,
+          "title": "Meo Vac → Duong Thuong → Ha Giang",
+          "description": "Return on quieter roads with village scenery, river valleys and local lunch stops.",
+          "stops": [
+            "Mountain backroads",
+            "Local villages",
+            "Ha Giang"
+          ]
+        }
+      ],
+      "media": [
+        {
+          "url": "/uploads/seed/gallery-landscape-1.jpg",
+          "type": "image",
+          "role": "hero",
+          "sort_order": 0,
+          "alt": "Classic Loop landscape"
+        },
+        {
+          "url": "/uploads/seed/gallery-guest-2.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 0,
+          "alt": "Classic Loop guests"
+        },
+        {
+          "url": "/uploads/seed/food-dining.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 1,
+          "alt": "Local dinner"
+        },
+        {
+          "url": "/uploads/seed/culture-weaving.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 2,
+          "alt": "Local culture"
+        }
+      ]
+    },
+    {
+      "name": "The Explorer Loop",
+      "slug": "explorer-loop",
+      "tagline": "Go deeper into Du Gia",
+      "short_description": "Four days for travellers who want waterfalls, remote valleys and more time in the quieter corners of the loop.",
+      "description": "Take the longer road through Du Gia and less-travelled valleys, with more time for swimming, village life and relaxed mountain riding.",
+      "duration_days": 4,
+      "duration_nights": 3,
+      "price": 200,
+      "currency": "USD",
+      "is_featured": false,
+      "is_active": true,
+      "sort_order": 3,
+      "highlights": [
+        "Ma Pi Leng Pass",
+        "Nho Que River",
+        "Du Gia",
+        "Waterfalls",
+        "Remote mountain valleys"
+      ],
+      "inclusions": [
+        "VIP cabin bus Hanoi ↔ Ha Giang",
+        "150cc motorbike and fuel",
+        "Helmet and protective gear",
+        "Easy Rider / local English-speaking guide",
+        "Homestays during the loop",
+        "Meals listed in the itinerary"
+      ],
+      "exclusions": [
+        "Personal travel insurance",
+        "Alcohol and personal expenses"
+      ],
+      "riding_options": [
+        {
+          "value": "easy-rider",
+          "label": "Easy-Rider",
+          "description": "Ride as a passenger with your own experienced local driver. Recommended.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": true
+        },
+        {
+          "value": "self-driving",
+          "label": "Self-Driving",
+          "description": "Ride your own motorbike. Valid licence and riding experience may be required.",
+          "price_modifier": 0,
+          "currency": "USD",
+          "recommended": false
+        }
+      ],
+      "bus_options": [
+        {
+          "value": "hanoi-round-trip",
+          "label": "Round-trip VIP cabin bus Hanoi ↔ Ha Giang",
+          "description": "Included in the standard tour package.",
+          "price_modifier": 0,
+          "currency": "USD"
+        },
+        {
+          "value": "self-arranged",
+          "label": "I will arrange my own transport to Riverside Haven",
+          "description": "Meet the team in Ha Giang.",
+          "price_modifier": 0,
+          "currency": "USD"
+        }
+      ],
+      "faq": [
+        {
+          "question": "Is the Explorer much harder?",
+          "answer": "It is longer, but the extra day lets the group ride at a more relaxed pace with more village and nature stops."
+        }
+      ],
+      "itinerary": [
+        {
+          "day_number": 1,
+          "title": "Ha Giang → Quan Ba → Yen Minh",
+          "description": "Start through the northern limestone mountains and settle into the rhythm of the loop.",
+          "stops": [
+            "Bac Sum Pass",
+            "Quan Ba",
+            "Yen Minh"
+          ]
+        },
+        {
+          "day_number": 2,
+          "title": "Yen Minh → Dong Van → Ma Pi Leng → Meo Vac",
+          "description": "Ride the most iconic roads of Ha Giang.",
+          "stops": [
+            "Tham Ma Pass",
+            "Dong Van",
+            "Ma Pi Leng Pass",
+            "Nho Que viewpoints",
+            "Meo Vac"
+          ]
+        },
+        {
+          "day_number": 3,
+          "title": "Meo Vac → Mau Due → Du Gia",
+          "description": "Leave the busiest loop roads for waterfalls, villages and lush valleys around Du Gia.",
+          "stops": [
+            "Mau Due",
+            "Mountain villages",
+            "Du Gia Waterfall",
+            "Du Gia"
+          ]
+        },
+        {
+          "day_number": 4,
+          "title": "Du Gia → Duong Thuong → Ha Giang",
+          "description": "A scenic final ride through quiet mountain roads before returning to Riverside Haven.",
+          "stops": [
+            "Duong Thuong",
+            "Rice valleys",
+            "Ha Giang"
+          ]
+        }
+      ],
+      "media": [
+        {
+          "url": "/uploads/seed/pool-area.jpg",
+          "type": "image",
+          "role": "hero",
+          "sort_order": 0,
+          "alt": "Explorer Loop waterfall stop"
+        },
+        {
+          "url": "/uploads/seed/trekking-path.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 0,
+          "alt": "Remote mountain road"
+        },
+        {
+          "url": "/uploads/seed/culture-weaving.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 1,
+          "alt": "Local culture"
+        },
+        {
+          "url": "/uploads/seed/gallery-landscape-1.jpg",
+          "type": "image",
+          "role": "gallery",
+          "sort_order": 2,
+          "alt": "Mountain valley"
+        }
+      ]
+    }
+  ],
+  "tourAddons": [
+    {
+      "code": "private-room-upgrade",
+      "name": "Private Room Upgrade",
+      "description": "Upgrade from shared accommodation to a private room along the loop where available.",
+      "price": 350000,
+      "currency": "VND",
+      "unit_label": "/ night",
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "code": "pre-tour-riverside-room",
+      "name": "Riverside Haven Room Before the Tour",
+      "description": "Request an additional night at Riverside Haven before departure. Final room price is confirmed by the homestay.",
+      "price": 0,
+      "currency": "VND",
+      "unit_label": "contact for room price",
+      "is_active": true,
+      "sort_order": 2
+    }
+  ]
+}

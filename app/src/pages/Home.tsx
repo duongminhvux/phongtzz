@@ -1,42 +1,35 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Bed, Check, MapPin, Star, Users } from 'lucide-react'
-import { getLandingPage, getRooms } from '../lib/api'
-import { defaultLandingPage } from '../data/defaultLanding'
-import { asMedia, mediaUrl, normalizeLandingPage, normalizeMediaList } from '../lib/media'
+import { asMedia, mediaUrl, normalizeMediaList } from '../lib/media'
 import type { LandingPage, LandingSection, Room } from '../types/api'
 
-const formatPrice = (price?: number | null) => {
-  if (!price) return 'Contact us'
-  return `${new Intl.NumberFormat('vi-VN').format(price)} VND/night`
+const formatPrice = (price: number | null | undefined, labels: Record<string, any>) => {
+  if (!price) return labels.contactPriceText || ''
+  const suffix = labels.priceSuffix ? ` ${labels.priceSuffix}` : ''
+  return `${new Intl.NumberFormat('vi-VN').format(price)}${suffix}`
 }
 
-export default function Home() {
-  const [landing, setLanding] = useState<LandingPage>(() => normalizeLandingPage(defaultLandingPage))
-  const [rooms, setRooms] = useState<Room[]>([])
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    getLandingPage().then(setLanding)
-    getRooms().then(setRooms)
-  }, [])
+export default function Home({ landing, rooms }: { landing: LandingPage; rooms: Room[] }) {
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   const sections = useMemo(() => (landing.sections || []).filter((section) => section.enabled !== false).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)), [landing])
   const theme = (landing.theme || {}) as Record<string, any>
+  const roomLabels = (landing.roomsPage || {}) as Record<string, any>
 
   return (
     <main style={{ backgroundColor: theme.backgroundColor || '#f7f5f2', fontFamily: theme.fontFamily || undefined, '--body-font': theme.fontFamily, '--heading-font': theme.headingFont } as CSSProperties}>
-      {sections.map((section) => <LandingSectionRenderer key={section.id} section={section} rooms={rooms} />)}
+      {sections.map((section) => <LandingSectionRenderer key={section.id} section={section} rooms={rooms} roomLabels={roomLabels} />)}
     </main>
   )
 }
 
-function LandingSectionRenderer({ section, rooms }: { section: LandingSection; rooms: Room[] }) {
+function LandingSectionRenderer({ section, rooms, roomLabels }: { section: LandingSection; rooms: Room[]; roomLabels: Record<string, any> }) {
   switch (section.type) {
     case 'hero': return <HeroSection section={section} />
     case 'welcome': return <WelcomeSection section={section} />
     case 'experiences': return <ExperiencesSection section={section} />
-    case 'rooms': return <RoomsPreviewSection section={section} rooms={rooms} />
+    case 'rooms': return <RoomsPreviewSection section={section} rooms={rooms} labels={roomLabels} />
     case 'amenities': return <AmenitiesSection section={section} />
     case 'testimonials': return <TestimonialsSection section={section} />
     case 'gallery': return <GallerySection section={section} />
@@ -121,7 +114,7 @@ function ExperiencesSection({ section }: { section: LandingSection }) {
   )
 }
 
-function RoomsPreviewSection({ section, rooms }: { section: LandingSection; rooms: Room[] }) {
+function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSection; rooms: Room[]; labels: Record<string, any> }) {
   const selectedIds = Array.isArray(section.roomIds) ? section.roomIds : []
   const visibleRooms = (selectedIds.length ? rooms.filter((room) => selectedIds.includes(room.id)) : rooms).slice(0, Number(section.limit || 3))
   return (
@@ -133,7 +126,7 @@ function RoomsPreviewSection({ section, rooms }: { section: LandingSection; room
             <p className="mt-4 max-w-xl font-sans text-black/60" style={{ lineHeight: '27px' }}>{section.description}</p>
           </div>
           <Link to={section.buttonLink || '/rooms'} className="inline-flex items-center gap-2 font-sans text-sm font-medium group">
-            {section.buttonText || 'View all rooms'}<ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            {section.buttonText}<ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
         {visibleRooms.length ? (
@@ -141,19 +134,23 @@ function RoomsPreviewSection({ section, rooms }: { section: LandingSection; room
             {visibleRooms.map((room) => (
               <Link key={room.id} to={`/contact?roomId=${room.id}`} className="group block">
                 <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: '4/3' }}>
-                  <img src={mediaUrl(room.images?.[0], '/images/room-deluxe.jpg')} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium backdrop-blur">{formatPrice(room.price)}</span>
+                  {mediaUrl(room.images?.[0]) ? (
+                    <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-[#eee9e2] text-sm text-black/40">{labels.emptyImageText || ""}</div>
+                  )}
+                  <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium backdrop-blur">{formatPrice(room.price, labels)}</span>
                 </div>
                 <h3 className="font-serif text-2xl">{room.name}</h3>
                 <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-black/50">
-                  <span className="flex items-center gap-1"><Users size={14} /> {room.capacity || 1} guests</span>
-                  <span className="flex items-center gap-1"><Bed size={14} /> {room.bed_type || `${room.beds || 1} bed`}</span>
+                  <span className="flex items-center gap-1"><Users size={14} /> {room.capacity || 1} {labels.guestsSuffix || ""}</span>
+                  <span className="flex items-center gap-1"><Bed size={14} /> {room.bed_type || `${room.beds || 1} ${labels.bedFallback || ""}`.trim()}</span>
                 </div>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{room.description}</p>
               </Link>
             ))}
           </div>
-        ) : <p className="rounded-3xl bg-[#f7f5f2] p-8 text-center text-sm text-black/55">Hiện admin chưa bật phòng nào để hiển thị trên landing page.</p>}
+        ) : <p className="rounded-3xl bg-[#f7f5f2] p-8 text-center text-sm text-black/55">{labels.noRoomsText || ""}</p>}
       </div>
     </section>
   )

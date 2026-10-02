@@ -1,30 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { getLandingPage } from '../lib/api'
-import { defaultLandingPage } from '../data/defaultLanding'
-import { mediaUrl, normalizeLandingPage } from '../lib/media'
+import { mediaUrl } from '../lib/media'
 import type { LandingPage } from '../types/api'
 
-export default function Navbar() {
+export default function Navbar({ landing }: { landing: LandingPage }) {
   const [scrolled, setScrolled] = useState(false)
-  const [landing, setLanding] = useState<LandingPage>(() => normalizeLandingPage(defaultLandingPage))
   const location = useLocation()
   const navRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll, { passive: true })
-    getLandingPage().then(setLanding)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const brand = (landing.brand || {}) as Record<string, any>
-  const header = (landing.header || {}) as Record<string, any>
-  const navItems = header.navItems || [
-    { path: '/', label: 'Home' },
-    { path: '/rooms', label: 'Rooms' },
-    { path: '/contact', label: 'Booking Request' },
-  ]
+  const brand = landing.brand || {}
+  const header = landing.header || {}
+  const navItems = Array.isArray(header.navItems) ? header.navItems : []
   const logoUrl = mediaUrl(brand.logo)
 
   return (
@@ -40,14 +32,14 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link to="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#111]">
-            {logoUrl ? <img src={logoUrl} alt={brand.name || 'logo'} className="h-full w-full object-cover" /> : <span className="font-serif text-sm font-semibold tracking-tight text-white">{String(brand.logoText || brand.name || 'PT').slice(0, 2).toUpperCase()}</span>}
+            {logoUrl ? <img src={logoUrl} alt={brand.name || ''} className="h-full w-full object-cover" /> : <span className="font-serif text-sm font-semibold tracking-tight text-white">{String(brand.logoText || brand.name || '').slice(0, 2).toUpperCase()}</span>}
           </div>
-          <span className="hidden font-serif text-lg font-medium tracking-tight sm:block">{brand.logoText || brand.name}</span>
+          {brand.logoText || brand.name ? <span className="hidden font-serif text-lg font-medium tracking-tight sm:block">{brand.logoText || brand.name}</span> : null}
         </Link>
 
         <div className="hidden items-center rounded-full px-1.5 py-1.5 md:flex" style={{ backgroundColor: scrolled ? '#f2f0ed' : 'rgba(242, 240, 237, 0.6)' }}>
           {navItems.map((item: any) => {
-            const path = item.path || item.to || '/'
+            const path = item.path || '/'
             const isActive = location.pathname === path
             return (
               <Link
@@ -62,9 +54,11 @@ export default function Navbar() {
           })}
         </div>
 
-        <Link to={header.ctaLink || '/contact'} className="btn-pill text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
-          {header.ctaText || 'Book Now'}
-        </Link>
+        {header.ctaText ? (
+          <Link to={header.ctaLink || '/contact'} className="btn-pill text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
+            {header.ctaText}
+          </Link>
+        ) : <span />}
       </div>
     </nav>
   )

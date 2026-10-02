@@ -1,11 +1,11 @@
-import { defaultLandingPage } from '../data/defaultLanding'
-import { normalizeLandingPage, normalizeRoom } from './media'
-import type { BookingRequestPayload, LandingPage, Room } from '../types/api'
+import { normalizeSite } from './media'
+import type { BookingRequestPayload, PublicSite, TourBookingRequestPayload } from '../types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
+    cache: options?.cache ?? 'no-store',
     headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     ...options,
   })
@@ -25,22 +25,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json()
 }
 
-export async function getLandingPage(): Promise<LandingPage> {
-  try {
-    const data = await request<{ value: LandingPage }>('/landing-page')
-    return normalizeLandingPage(data.value)
-  } catch {
-    return normalizeLandingPage(defaultLandingPage)
-  }
-}
-
-export async function getRooms(): Promise<Room[]> {
-  try {
-    const rooms = await request<Room[]>('/rooms')
-    return rooms.map(normalizeRoom)
-  } catch {
-    return []
-  }
+export async function getPublicSite(): Promise<PublicSite> {
+  const site = await request<PublicSite>(`/site?_=${Date.now()}`)
+  return normalizeSite(site)
 }
 
 export async function createBookingRequest(payload: BookingRequestPayload) {
@@ -48,6 +35,10 @@ export async function createBookingRequest(payload: BookingRequestPayload) {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+}
+
+export async function createTourBookingRequest(payload: TourBookingRequestPayload): Promise<{ id: string }> {
+  return request<{ id: string }>('/tour-booking-requests', { method: 'POST', body: JSON.stringify(payload) })
 }
 
 export function readTrackingParams() {

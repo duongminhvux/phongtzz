@@ -16,6 +16,7 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 
 COPY app ./app
 COPY scripts ./scripts
+COPY seed ./seed
 
 EXPOSE 8000
 

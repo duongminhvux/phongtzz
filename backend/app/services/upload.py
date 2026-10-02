@@ -2,11 +2,11 @@ import os
 import shutil
 import subprocess
 import tempfile
+import uuid
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 
-import cloudinary
-import cloudinary.uploader
 from fastapi import HTTPException, UploadFile, status
 from PIL import Image, ImageOps
 
@@ -16,42 +16,77 @@ ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
 ALLOWED_VIDEO_TYPES = {'video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/mpeg'}
 MAX_IMAGE_SIZE_BYTES = 12 * 1024 * 1024
 MAX_VIDEO_SIZE_BYTES = 120 * 1024 * 1024
+MAX_IMAGE_DIMENSION = 1920
 
 
-def configure_cloudinary() -> bool:
-    settings = get_settings()
-    if not all([settings.cloudinary_cloud_name, settings.cloudinary_api_key, settings.cloudinary_api_secret]):
-        return False
-    cloudinary.config(
-        cloud_name=settings.cloudinary_cloud_name,
-        api_key=settings.cloudinary_api_key,
-        api_secret=settings.cloudinary_api_secret,
-        secure=True,
-    )
-    return True
+def ensure_media_root() -> Path:
+    root = get_settings().media_root_path
+    root.mkdir(parents=True, exist_ok=True)
+    return root
 
 
-def _ensure_configured():
-    if not configure_cloudinary():
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Cloudinary is not configured')
+def media_url_for_storage(storage_path: str) -> str:
+    prefix = get_settings().normalized_media_url_prefix
+    return f"{prefix}/{storage_path.lstrip('/')}"
 
 
-def _convert_image_to_webp(content: bytes) -> bytes:
+def _new_storage_path(extension: str) -> str:
+    now = datetime.now(timezone.utc)
+    return f"{now:%Y/%m}/{uuid.uuid4().hex}.{extension.lstrip('.')}"
+
+
+def _write_atomic(relative_path: str, content: bytes) -> Path:
+    root = ensure_media_root()
+    destination = (root / relative_path).resolve()
+    try:
+        destination.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid media path') from exc
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_suffix(destination.suffix + '.tmp')
+    temporary.write_bytes(content)
+    os.replace(temporary, destination)
+    return destination
+
+
+def _convert_image_to_webp(content: bytes) -> tuple[bytes, int, int]:
     try:
         image = Image.open(BytesIO(content))
         image = ImageOps.exif_transpose(image)
         if getattr(image, 'is_animated', False):
             image.seek(0)
+        image.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.Resampling.LANCZOS)
         if image.mode not in ('RGB', 'RGBA'):
             image = image.convert('RGBA' if 'A' in image.getbands() else 'RGB')
         output = BytesIO()
-        image.save(output, format='WEBP', quality=86, method=6)
-        return output.getvalue()
+        image.save(output, format='WEBP', quality=84, method=6)
+        width, height = image.size
+        return output.getvalue(), width, height
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Cannot convert image to webp: {exc}') from exc
 
 
-def _convert_video_to_mp4(content: bytes, original_name: str) -> bytes:
+def _probe_video(path: str) -> tuple[int | None, int | None]:
+    if not shutil.which('ffprobe'):
+        return None, None
+    result = subprocess.run(
+        [
+            'ffprobe', '-v', 'error', '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height', '-of', 'csv=s=x:p=0', path,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None, None
+    try:
+        width, height = result.stdout.strip().split('x', 1)
+        return int(width), int(height)
+    except Exception:
+        return None, None
+
+
+def _convert_video_to_mp4(content: bytes, original_name: str) -> tuple[bytes, int | None, int | None]:
     if not shutil.which('ffmpeg'):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='FFmpeg is not installed in API container')
 
@@ -72,8 +107,9 @@ def _convert_video_to_mp4(content: bytes, original_name: str) -> bytes:
         result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode != 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Cannot convert video to web mp4')
+        width, height = _probe_video(output_path)
         with open(output_path, 'rb') as f:
-            return f.read()
+            return f.read(), width, height
 
 
 async def upload_media(file: UploadFile) -> dict:
@@ -83,41 +119,55 @@ async def upload_media(file: UploadFile) -> dict:
     if content_type in ALLOWED_IMAGE_TYPES:
         if len(content) > MAX_IMAGE_SIZE_BYTES:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Image must be <= 12MB')
-        converted = _convert_image_to_webp(content)
+        converted, width, height = _convert_image_to_webp(content)
         resource_type = 'image'
-        upload_payload = converted
-        upload_options = {'format': 'webp'}
+        extension = 'webp'
     elif content_type in ALLOWED_VIDEO_TYPES:
         if len(content) > MAX_VIDEO_SIZE_BYTES:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Video must be <= 120MB')
-        converted = _convert_video_to_mp4(content, file.filename or 'video.mp4')
+        converted, width, height = _convert_video_to_mp4(content, file.filename or 'video.mp4')
         resource_type = 'video'
-        upload_payload = converted
-        upload_options = {'format': 'mp4'}
+        extension = 'mp4'
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Only jpg, png, webp, gif images and mp4, mov, webm videos are allowed',
         )
 
-    _ensure_configured()
-    settings = get_settings()
-    result = cloudinary.uploader.upload(
-        upload_payload,
-        folder=settings.cloudinary_folder,
-        resource_type=resource_type,
-        overwrite=False,
-        **upload_options,
-    )
+    storage_path = _new_storage_path(extension)
+    _write_atomic(storage_path, converted)
     return {
-        'url': result.get('secure_url'),
-        'public_id': result.get('public_id'),
+        'url': media_url_for_storage(storage_path),
+        'storage_path': storage_path,
         'type': resource_type,
-        'width': result.get('width'),
-        'height': result.get('height'),
-        'format': result.get('format') or upload_options['format'],
+        'width': width,
+        'height': height,
+        'format': extension,
+        'size_bytes': len(converted),
     }
 
 
 async def upload_image(file: UploadFile) -> dict:
     return await upload_media(file)
+
+
+def delete_local_asset(storage_path: str | None) -> None:
+    if not storage_path:
+        return
+    root = ensure_media_root()
+    target = (root / storage_path.lstrip('/')).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid media path') from exc
+    if target.is_file():
+        target.unlink()
+
+    # Remove empty year/month folders, but never remove MEDIA_ROOT itself.
+    parent = target.parent
+    while parent != root:
+        try:
+            parent.rmdir()
+        except OSError:
+            break
+        parent = parent.parent

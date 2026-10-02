@@ -1,8 +1,7 @@
 import type React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { CheckCircle, Mail, MapPin, Phone, Send } from 'lucide-react'
-import { createBookingRequest, getLandingPage, getRooms, readTrackingParams } from '../lib/api'
-import { defaultLandingPage } from '../data/defaultLanding'
+import { createBookingRequest, readTrackingParams } from '../lib/api'
 import type { LandingPage, Room } from '../types/api'
 
 type FormState = {
@@ -39,9 +38,7 @@ function validateForm(form: FormState) {
   return ''
 }
 
-export default function Contact() {
-  const [landing, setLanding] = useState<LandingPage>(defaultLandingPage)
-  const [rooms, setRooms] = useState<Room[]>([])
+export default function Contact({ landing, rooms }: { landing: LandingPage; rooms: Room[] }) {
   const [form, setForm] = useState<FormState>(initialForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -49,18 +46,14 @@ export default function Contact() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    getLandingPage().then(setLanding)
-    getRooms().then((items) => {
-      setRooms(items)
-      const roomId = new URLSearchParams(window.location.search).get('roomId')
-      if (roomId && items.some((room) => room.id === roomId)) {
-        setForm((prev) => ({ ...prev, room_id: roomId }))
-      }
-    })
-  }, [])
+    const roomId = new URLSearchParams(window.location.search).get('roomId')
+    if (roomId && rooms.some((room) => room.id === roomId)) {
+      setForm((prev) => ({ ...prev, room_id: roomId }))
+    }
+  }, [rooms])
 
-  const brand = (landing.brand || defaultLandingPage.brand || {}) as Record<string, any>
-  const contact = (landing.contact || defaultLandingPage.contact || {}) as Record<string, any>
+  const brand = (landing.brand || {}) as Record<string, any>
+  const contact = (landing.contact || {}) as Record<string, any>
   const minDate = useMemo(() => new Date().toISOString().split('T')[0], [])
 
   const update = (key: keyof FormState, value: string) => {
@@ -100,10 +93,10 @@ export default function Contact() {
   }
 
   return (
-    <main style={{ backgroundColor: '#f7f5f2' }}>
+    <main style={{ backgroundColor: 'var(--page-bg, #f7f5f2)' }}>
       <section className="px-6 pb-16 pt-40 text-center">
         <div className="mx-auto max-w-3xl">
-          <span className="font-sans text-xs uppercase tracking-widest text-black/40">Booking Request</span>
+          <span className="font-sans text-xs uppercase tracking-widest text-black/40">{contact.eyebrow || ""}</span>
           <h1 className="mt-4 font-serif" style={{ fontSize: 'clamp(40px, 7vw, 82px)', lineHeight: 1.05 }}>{contact.title}</h1>
           <p className="mx-auto mt-5 max-w-2xl font-sans text-black/60" style={{ lineHeight: '28px' }}>{contact.description}</p>
         </div>
@@ -113,22 +106,22 @@ export default function Contact() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-5">
           <aside className="lg:col-span-2">
             <div className="rounded-[28px] bg-white p-7 lg:p-8">
-              <h2 className="font-serif text-3xl">Contact info</h2>
+              <h2 className="font-serif text-3xl">{contact.infoTitle}</h2>
               <p className="mt-3 font-sans text-sm text-black/55" style={{ lineHeight: '24px' }}>
-                Web chỉ nhận yêu cầu đặt phòng. Homestay sẽ liên hệ ngoài để xác nhận phòng trống và hoàn tất booking.
+                {contact.infoDescription}
               </p>
               <div className="mt-8 space-y-5">
                 <div className="flex gap-4">
                   <MapPin className="mt-0.5 shrink-0 text-black/45" size={18} />
-                  <div><p className="font-medium">Address</p><p className="text-sm text-black/60">{brand.address}</p></div>
+                  <div><p className="font-medium">{contact.addressLabel}</p><p className="text-sm text-black/60">{brand.address}</p></div>
                 </div>
                 <div className="flex gap-4">
                   <Phone className="mt-0.5 shrink-0 text-black/45" size={18} />
-                  <div><p className="font-medium">Phone</p><p className="text-sm text-black/60">{brand.phone}</p></div>
+                  <div><p className="font-medium">{contact.phoneLabel}</p><p className="text-sm text-black/60">{brand.phone}</p></div>
                 </div>
                 <div className="flex gap-4">
                   <Mail className="mt-0.5 shrink-0 text-black/45" size={18} />
-                  <div><p className="font-medium">Email</p><p className="text-sm text-black/60">{brand.email}</p></div>
+                  <div><p className="font-medium">{contact.emailLabel}</p><p className="text-sm text-black/60">{brand.email}</p></div>
                 </div>
               </div>
             </div>
@@ -141,10 +134,10 @@ export default function Contact() {
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#f2f0ed]">
                     <CheckCircle size={32} className="text-green-600" />
                   </div>
-                  <h3 className="font-serif text-3xl">{contact.successTitle || 'Request sent!'}</h3>
+                  <h3 className="font-serif text-3xl">{contact.successTitle}</h3>
                   <p className="mt-3 max-w-md text-sm text-black/55" style={{ lineHeight: '24px' }}>{contact.successMessage}</p>
                   <button onClick={() => setSubmitted(false)} className="btn-pill mt-8 text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
-                    Send another request
+                    {contact.sendAnotherText}
                   </button>
                 </div>
               ) : (
@@ -191,9 +184,9 @@ export default function Contact() {
 
                   <button disabled={submitting} type="submit" className="btn-pill flex w-full items-center justify-center gap-2 py-4 text-sm font-medium uppercase tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-60" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
                     <Send size={15} />
-                    {submitting ? 'Đang gửi...' : 'Gửi yêu cầu đặt phòng'}
+                    {submitting ? contact.submittingText : contact.submitText}
                   </button>
-                  <p className="text-center text-xs text-black/45">Homestay sẽ liên hệ lại để xác nhận tình trạng phòng và hoàn tất đặt phòng.</p>
+                  <p className="text-center text-xs text-black/45">{contact.submitNote}</p>
                 </form>
               )}
             </div>

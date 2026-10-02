@@ -1,10 +1,11 @@
 import re
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.security import get_current_admin
 from app.database import get_db
-from app.models import Admin, Room
+from app.media import set_room_media
+from app.models import Admin, Room, RoomMedia
 from app.schemas import RoomCreate, RoomOut, RoomUpdate
 
 router = APIRouter(tags=['rooms'])
@@ -30,15 +31,6 @@ def ensure_unique_slug(db: Session, slug: str, ignore_id: str | None = None) -> 
         idx += 1
 
 
-@router.get('/rooms', response_model=list[RoomOut])
-def list_public_rooms(db: Session = Depends(get_db)):
-    return (
-        db.query(Room)
-        .filter(Room.is_active.is_(True))
-        .order_by(Room.sort_order.asc(), Room.created_at.desc())
-        .all()
-    )
-
 
 @router.get('/admin/rooms', response_model=list[RoomOut])
 def list_admin_rooms(
@@ -46,7 +38,7 @@ def list_admin_rooms(
     admin: Admin = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Room)
+    query = db.query(Room).options(selectinload(Room.media_links).selectinload(RoomMedia.asset))
     if q:
         like = f'%{q}%'
         query = query.filter(Room.name.ilike(like))
@@ -60,9 +52,12 @@ def create_room(
     db: Session = Depends(get_db),
 ):
     data = payload.model_dump()
+    images = data.pop('images', [])
     data['slug'] = ensure_unique_slug(db, data.get('slug') or data['name'])
     room = Room(**data)
     db.add(room)
+    db.flush()
+    set_room_media(db, room, images)
     db.commit()
     db.refresh(room)
     return room
@@ -75,15 +70,18 @@ def update_room(
     admin: Admin = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    room = db.get(Room, room_id)
+    room = db.query(Room).options(selectinload(Room.media_links).selectinload(RoomMedia.asset)).filter(Room.id == room_id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Room not found')
     data = payload.model_dump(exclude_unset=True)
+    images = data.pop('images', None)
     if 'slug' in data or 'name' in data:
         new_slug = data.get('slug') or room.slug or data.get('name') or room.name
         data['slug'] = ensure_unique_slug(db, new_slug, ignore_id=room.id)
     for key, value in data.items():
         setattr(room, key, value)
+    if images is not None:
+        set_room_media(db, room, images)
     db.commit()
     db.refresh(room)
     return room

@@ -28,3 +28,7 @@ dist-ssr
 __pycache__
 *.pyc
 .next
+# Runtime media lives on the host and must not be committed.
+data/uploads/*
+!data/uploads/.gitkeep
+

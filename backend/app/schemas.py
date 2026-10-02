@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
-from app.models import BookingStatus
+from app.models import BookingStatus, TourBookingStatus
 
 PHONE_PATTERN = r'^[0-9+()\-\.\s]{8,25}$'
 
@@ -34,17 +34,17 @@ class TokenOut(BaseModel):
 
 
 class MediaItem(BaseModel):
-    """A single uploaded media asset saved in JSONB.
+    """Canonical media reference shared by landing, rooms and tours."""
 
-    Backward compatible with the old `images: ["url"]` shape via validators below.
-    """
-
+    asset_id: str | None = Field(default=None, max_length=36)
     url: str = Field(min_length=1, max_length=2000)
     type: Literal['image', 'video'] = 'image'
-    public_id: str | None = Field(default=None, max_length=500)
+    storage_path: str | None = Field(default=None, max_length=1000)
     width: int | None = None
     height: int | None = None
     format: str | None = Field(default=None, max_length=40)
+    original_filename: str | None = Field(default=None, max_length=500)
+    source: str | None = Field(default=None, max_length=40)
     alt: str | None = Field(default=None, max_length=255)
     sort_order: int = 0
 
@@ -201,3 +201,270 @@ class LandingPageOut(BaseModel):
 
 class LandingPageUpdate(BaseModel):
     value: dict[str, Any]
+
+
+class MediaAssignmentOut(BaseModel):
+    kind: str
+    owner_id: str
+    slot: str
+    label: str
+    sort_order: int = 0
+
+
+class MediaAssetAdminOut(BaseModel):
+    id: str
+    url: str
+    storage_path: str | None = None
+    type: Literal['image', 'video']
+    width: int | None = None
+    height: int | None = None
+    format: str | None = None
+    original_filename: str | None = None
+    source: str
+    created_at: datetime
+    assignments: list[MediaAssignmentOut] = Field(default_factory=list)
+
+
+class TourItineraryDayIn(BaseModel):
+    day_number: int = Field(ge=1, le=30)
+    title: str = Field(min_length=2, max_length=255)
+    description: str | None = Field(default=None, max_length=5000)
+    stops: list[str] = Field(default_factory=list)
+
+    @field_validator('stops')
+    @classmethod
+    def clean_stops(cls, value: list[str]) -> list[str]:
+        return [item.strip() for item in value if item and item.strip()]
+
+
+class TourMediaItem(MediaItem):
+    role: Literal['hero', 'gallery', 'itinerary'] = 'gallery'
+
+
+class TourBase(BaseModel):
+    name: str = Field(min_length=2, max_length=255)
+    slug: str | None = Field(default=None, max_length=255)
+    tagline: str | None = Field(default=None, max_length=255)
+    short_description: str | None = Field(default=None, max_length=1500)
+    description: str | None = Field(default=None, max_length=8000)
+    duration_days: int = Field(default=1, ge=1, le=30)
+    duration_nights: int = Field(default=0, ge=0, le=29)
+    price: int = Field(default=0, ge=0)
+    currency: str = Field(default='USD', min_length=2, max_length=12)
+    highlights: list[str] = Field(default_factory=list)
+    inclusions: list[str] = Field(default_factory=list)
+    exclusions: list[str] = Field(default_factory=list)
+    riding_options: list[dict[str, Any]] = Field(default_factory=list)
+    bus_options: list[dict[str, Any]] = Field(default_factory=list)
+    faq: list[dict[str, Any]] = Field(default_factory=list)
+    itinerary: list[TourItineraryDayIn] = Field(default_factory=list)
+    media: list[TourMediaItem] = Field(default_factory=list)
+    is_featured: bool = False
+    is_active: bool = True
+    sort_order: int = 0
+
+    @field_validator('highlights', 'inclusions', 'exclusions')
+    @classmethod
+    def clean_tour_str_list(cls, value: list[str]) -> list[str]:
+        return [item.strip() for item in value if item and item.strip()]
+
+    @field_validator('media', mode='before')
+    @classmethod
+    def clean_tour_media(cls, value: Any) -> list[dict[str, Any]]:
+        if not value:
+            return []
+        normalized: list[dict[str, Any]] = []
+        for index, item in enumerate(value):
+            raw = {'url': item} if isinstance(item, str) else dict(item or {})
+            if not raw.get('url'):
+                continue
+            raw.setdefault('type', 'image')
+            raw.setdefault('role', 'gallery')
+            raw.setdefault('sort_order', index)
+            normalized.append(raw)
+        return normalized
+
+
+class TourCreate(TourBase):
+    pass
+
+
+class TourUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=255)
+    slug: str | None = Field(default=None, max_length=255)
+    tagline: str | None = Field(default=None, max_length=255)
+    short_description: str | None = Field(default=None, max_length=1500)
+    description: str | None = Field(default=None, max_length=8000)
+    duration_days: int | None = Field(default=None, ge=1, le=30)
+    duration_nights: int | None = Field(default=None, ge=0, le=29)
+    price: int | None = Field(default=None, ge=0)
+    currency: str | None = Field(default=None, min_length=2, max_length=12)
+    highlights: list[str] | None = None
+    inclusions: list[str] | None = None
+    exclusions: list[str] | None = None
+    riding_options: list[dict[str, Any]] | None = None
+    bus_options: list[dict[str, Any]] | None = None
+    faq: list[dict[str, Any]] | None = None
+    itinerary: list[TourItineraryDayIn] | None = None
+    media: list[TourMediaItem] | None = None
+    is_featured: bool | None = None
+    is_active: bool | None = None
+    sort_order: int | None = None
+
+    @field_validator('media', mode='before')
+    @classmethod
+    def clean_tour_media(cls, value: Any) -> list[dict[str, Any]] | None:
+        if value is None:
+            return None
+        normalized: list[dict[str, Any]] = []
+        for index, item in enumerate(value):
+            raw = {'url': item} if isinstance(item, str) else dict(item or {})
+            if not raw.get('url'):
+                continue
+            raw.setdefault('type', 'image')
+            raw.setdefault('role', 'gallery')
+            raw.setdefault('sort_order', index)
+            normalized.append(raw)
+        return normalized
+
+
+class TourItineraryDayOut(TourItineraryDayIn):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+
+
+class TourOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    slug: str
+    name: str
+    tagline: str | None
+    short_description: str | None
+    description: str | None
+    duration_days: int
+    duration_nights: int
+    price: int
+    currency: str
+    highlights: list[str]
+    inclusions: list[str]
+    exclusions: list[str]
+    riding_options: list[dict[str, Any]]
+    bus_options: list[dict[str, Any]]
+    faq: list[dict[str, Any]]
+    itinerary: list[TourItineraryDayOut] = Field(validation_alias='itinerary_days')
+    media: list[TourMediaItem]
+    is_featured: bool
+    is_active: bool
+    sort_order: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class TourAddonBase(BaseModel):
+    code: str = Field(min_length=2, max_length=100)
+    name: str = Field(min_length=2, max_length=255)
+    description: str | None = Field(default=None, max_length=2000)
+    price: int = Field(default=0, ge=0)
+    currency: str = Field(default='VND', min_length=2, max_length=12)
+    unit_label: str | None = Field(default=None, max_length=100)
+    is_active: bool = True
+    sort_order: int = 0
+
+
+class TourAddonCreate(TourAddonBase):
+    pass
+
+
+class TourAddonUpdate(BaseModel):
+    code: str | None = Field(default=None, min_length=2, max_length=100)
+    name: str | None = Field(default=None, min_length=2, max_length=255)
+    description: str | None = Field(default=None, max_length=2000)
+    price: int | None = Field(default=None, ge=0)
+    currency: str | None = Field(default=None, min_length=2, max_length=12)
+    unit_label: str | None = Field(default=None, max_length=100)
+    is_active: bool | None = None
+    sort_order: int | None = None
+
+
+class TourAddonOut(TourAddonBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class TourPageOut(BaseModel):
+    key: str = 'default'
+    value: dict[str, Any]
+    updated_at: datetime | None = None
+
+
+class TourPageUpdate(BaseModel):
+    value: dict[str, Any]
+
+
+class TourBookingCreate(BaseModel):
+    full_name: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    whatsapp: str = Field(pattern=PHONE_PATTERN)
+    start_date: date
+    tour_id: str
+    riding_option: str = Field(min_length=2, max_length=80)
+    guests: int = Field(ge=1, le=50)
+    bus_transfer: str = Field(min_length=2, max_length=80)
+    addon_ids: list[str] = Field(default_factory=list)
+    dietary_requirements: str | None = Field(default=None, max_length=2000)
+    notes: str | None = Field(default=None, max_length=3000)
+    source: str | None = Field(default=None, max_length=255)
+    page_url: str | None = Field(default=None, max_length=1000)
+    utm_source: str | None = Field(default=None, max_length=255)
+    utm_medium: str | None = Field(default=None, max_length=255)
+    utm_campaign: str | None = Field(default=None, max_length=255)
+
+    @model_validator(mode='after')
+    def validate_start_date(self):
+        if self.start_date < date.today():
+            raise ValueError('Tour start date cannot be in the past')
+        return self
+
+
+class TourBookingUpdate(BaseModel):
+    status: TourBookingStatus | None = None
+    internal_note: str | None = Field(default=None, max_length=3000)
+    quoted_price: int | None = Field(default=None, ge=0)
+    quoted_currency: str | None = Field(default=None, max_length=12)
+
+
+class TourBookingOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    full_name: str
+    email: str
+    whatsapp: str
+    start_date: date
+    riding_option: str
+    guests: int
+    bus_transfer: str
+    addons: list[dict[str, Any]]
+    tour_snapshot: dict[str, Any]
+    dietary_requirements: str | None
+    notes: str | None
+    status: TourBookingStatus
+    internal_note: str | None
+    quoted_price: int | None
+    quoted_currency: str | None
+    source: str | None
+    page_url: str | None
+    tour_id: str | None
+    tour: TourOut | None = None
+    created_at: datetime
+    updated_at: datetime
+
+# Final public snapshot schema includes the tour domain as well as rooms/landing.
+class PublicSiteOut(BaseModel):
+    landing: dict[str, Any]
+    rooms: list[RoomOut]
+    tours_page: dict[str, Any]
+    tours: list[TourOut]
+    tour_addons: list[TourAddonOut]
+    updated_at: datetime | None = None

@@ -210,9 +210,9 @@ Nếu Zalo chưa nhập riêng, public FE fallback sang số điện thoại c�
 
 ## Landing image ratios
 
-- `welcome-main`: đúng **1 ảnh lớn 1:1**
-- `gallery-main`: đúng **1 ảnh lớn 1:1**
-- các card ảnh nhỏ trên Home: landscape **3:2**, portrait **2:3** dựa trên metadata width/height của media
+- `welcome-main`: **1 ảnh lớn 3:2**
+- `gallery-main`: **1 ảnh lớn 3:2**
+- toàn bộ khung ảnh nội dung ở Home / Rooms / Tours / Admin preview dùng cố định **3:2**; ảnh dọc được crop bằng `object-cover`, không còn layout 2:3
 - Hero/Banner/Room detail có layout riêng vì không phải “khung ảnh nhỏ” của landing.
 
 ## Landing save

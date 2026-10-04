@@ -15,10 +15,8 @@ export function mediaUrl(item: MediaItem | string | null | undefined): string {
   return asMedia(item)?.url || ''
 }
 
-export function mediaAspect(item: MediaItem | string | null | undefined, landscape = '3/2'): string {
-  const media = asMedia(item)
-  if (media?.width && media?.height && media.height > media.width) return '2/3'
-  return landscape
+export function mediaAspect(_item: MediaItem | string | null | undefined): string {
+  return '3/2'
 }
 
 export function normalizeMediaList(value: Array<MediaItem | string> | undefined): MediaItem[] {

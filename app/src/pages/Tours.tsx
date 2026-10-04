@@ -38,7 +38,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
             {activeTours.map((tour) => {
               const cover = tour.media.find((item) => item.role === 'hero') || tour.media[0]
               return <article key={tour.id} className={`overflow-hidden rounded-[28px] bg-white ${tour.is_featured ? 'ring-2 ring-black' : ''}`}>
-                <div className="relative h-64 bg-black/5">
+                <div className="relative aspect-[3/2] bg-black/5">
                   {cover ? <img src={cover.url} alt={cover.alt || tour.name} className="h-full w-full object-cover" /> : null}
                   {tour.is_featured ? <span className="absolute left-4 top-4 rounded-full bg-black px-3 py-1 text-xs font-medium text-white">Most popular</span> : null}
                 </div>
@@ -72,7 +72,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
 
       <section className="px-6 py-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.whyTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{(page.whyItems || []).map((item, index) => <div key={item.title} className="rounded-[26px] bg-white p-7"><div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">{index === 0 ? <ShieldCheck size={20} /> : index === 1 ? <Clock size={20} /> : <Star size={20} />}</div><h3 className="font-serif text-2xl">{item.title}</h3><p className="mt-3 text-sm leading-6 text-black/55">{item.description}</p></div>)}</div></div></section>
 
-      {(page.gallery || []).length ? <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.galleryTitle}</h2><div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">{(page.gallery || []).map((item, index) => <img key={item.asset_id || `${item.url}-${index}`} src={item.url} alt={item.alt || 'Ha Giang Loop'} className={`h-60 w-full rounded-2xl object-cover ${index === 0 ? 'md:col-span-2' : ''}`} />)}</div></div></section> : null}
+      {(page.gallery || []).length ? <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.galleryTitle}</h2><div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">{(page.gallery || []).map((item, index) => <img key={item.asset_id || `${item.url}-${index}`} src={item.url} alt={item.alt || 'Ha Giang Loop'} className={`aspect-[3/2] w-full rounded-2xl object-cover ${index === 0 ? 'md:col-span-2' : ''}`} />)}</div></div></section> : null}
 
       <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.reviewsTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-2">{(page.reviews || []).map((review) => <blockquote key={`${review.name}-${review.country}`} className="rounded-[26px] bg-white p-7"><div className="flex gap-1">{Array.from({ length: review.rating || 5 }).map((_, i) => <Star key={i} size={15} fill="currentColor" />)}</div><p className="mt-5 font-serif text-2xl leading-9">“{review.text}”</p><footer className="mt-5 text-sm text-black/50">{review.name}{review.country ? ` · ${review.country}` : ''}</footer></blockquote>)}</div></div></section>
 

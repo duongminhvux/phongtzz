@@ -71,7 +71,7 @@ function WelcomeSection({ section }: { section: LandingSection }) {
     <section className="py-24 lg:py-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-24 items-center">
         <div>
-          {images[0] ? <div className="overflow-hidden" style={{ borderRadius: 24, aspectRatio: '1/1' }}>
+          {images[0] ? <div className="overflow-hidden" style={{ borderRadius: 24, aspectRatio: '3/2' }}>
             <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" />
           </div> : null}
         </div>
@@ -199,7 +199,7 @@ function GallerySection({ section }: { section: LandingSection }) {
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
-        {image ? <div className="mx-auto max-w-4xl overflow-hidden" style={{ borderRadius: 24, aspectRatio: '1/1' }}>
+        {image ? <div className="mx-auto max-w-4xl overflow-hidden" style={{ borderRadius: 24, aspectRatio: '3/2' }}>
           <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
         </div> : null}
       </div>

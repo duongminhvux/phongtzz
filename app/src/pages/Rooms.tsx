@@ -29,7 +29,7 @@ function RoomDetailModal({ room, labels, onClose }: { room: Room; labels: Record
           <X size={18} />
         </button>
 
-        <div className="relative" style={{ aspectRatio: '16/9' }}>
+        <div className="relative" style={{ aspectRatio: '3/2' }}>
           {images.length ? (
             <img src={mediaUrl(images[activeImage])} alt={room.name} className="h-full w-full object-cover" />
           ) : (

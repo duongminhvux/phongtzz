@@ -4,6 +4,9 @@ export type LandingMediaDisplay = {
   align?: 'left' | 'center' | 'right'
   cropX?: number
   cropY?: number
+  displayMode?: 'container' | 'wide' | 'full-bleed'
+  mobileFullWidth?: boolean
+  tabletFullWidth?: boolean
 }
 
 export type MediaItem = {

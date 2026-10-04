@@ -14,6 +14,7 @@
     font-family: var(--body-font, 'Inter', Arial, sans-serif);
     background-color: var(--page-bg, #f7f5f2);
     color: #111111;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -38,12 +39,52 @@
   }
 
   .landing-media-frame {
+    position: relative;
     width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
   }
 
-  @media (min-width: 768px) {
+  /* Mobile full-width escapes the section's horizontal padding. */
+  @media (max-width: 767px) {
+    .landing-media-mobile-full {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      margin-left: calc(50% - 50vw) !important;
+      margin-right: calc(50% - 50vw) !important;
+    }
+  }
+
+  /* Tablet full-width uses the same full-bleed treatment. */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .landing-media-frame {
+      width: min(var(--landing-media-width, 100%), 100%);
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .landing-media-tablet-full {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      margin-left: calc(50% - 50vw) !important;
+      margin-right: calc(50% - 50vw) !important;
+    }
+  }
+
+  /* Desktop may intentionally exceed the content column up to 160%. */
+  @media (min-width: 1024px) {
     .landing-media-frame {
       width: var(--landing-media-width, 100%);
+      margin-left: var(--landing-media-margin-left, 0%);
+      margin-right: 0;
+    }
+
+    .landing-media-desktop-full {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      margin-left: calc(50% - 50vw) !important;
+      margin-right: calc(50% - 50vw) !important;
     }
   }
 }

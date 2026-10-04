@@ -118,10 +118,13 @@
         ],
         "mediaDisplay": {
           "aspectRatio": "3:2",
-          "widthPercent": 100,
+          "widthPercent": 120,
           "align": "center",
           "cropX": 50,
-          "cropY": 50
+          "cropY": 50,
+          "displayMode": "wide",
+          "mobileFullWidth": true,
+          "tabletFullWidth": true
         }
       },
       {
@@ -272,7 +275,10 @@
           "widthPercent": 100,
           "align": "center",
           "cropX": 50,
-          "cropY": 50
+          "cropY": 50,
+          "displayMode": "full-bleed",
+          "mobileFullWidth": true,
+          "tabletFullWidth": true
         }
       },
       {

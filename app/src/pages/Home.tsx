@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Bed, Check, MapPin, Star, Users } from 'lucide-react'
 import { asMedia, mediaUrl, normalizeMediaList } from '../lib/media'
-import { mediaFrameStyle, mediaObjectStyle } from '../lib/landingDisplay'
+import { mediaFrameClassName, mediaFrameStyle, mediaObjectStyle, normalizeLandingMediaDisplay } from '../lib/landingDisplay'
 import type { LandingPage, LandingSection, Room } from '../types/api'
 
 const formatPrice = (price: number | null | undefined, labels: Record<string, any>) => {
@@ -69,15 +69,17 @@ function HeroSection({ section }: { section: LandingSection }) {
 function WelcomeSection({ section }: { section: LandingSection }) {
   const images = normalizeMediaList(section.images)
   const paragraphs = Array.isArray(section.paragraphs) ? section.paragraphs : String(section.description || '').split('\n').filter(Boolean)
+  const display = normalizeLandingMediaDisplay(section.mediaDisplay)
+  const showcase = display.displayMode !== 'container'
   return (
     <section className="py-24 lg:py-32 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-24 items-center">
-        <div>
-          {images[0] ? <div className="landing-media-frame overflow-hidden" style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
+      <div className={`max-w-7xl mx-auto grid grid-cols-1 gap-14 items-center ${showcase ? 'lg:gap-14' : 'lg:grid-cols-2 lg:gap-24'}`}>
+        <div className={showcase ? 'w-full' : ''}>
+          {images[0] ? <div className={mediaFrameClassName(section.mediaDisplay, 'overflow-hidden')} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
             <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" style={mediaObjectStyle(section.mediaDisplay)} />
           </div> : null}
         </div>
-        <div>
+        <div className={showcase ? 'mx-auto w-full max-w-3xl' : ''}>
           <span className="font-sans text-xs uppercase tracking-widest text-black/40">{section.eyebrow}</span>
           <h2 className="font-serif mt-4" style={{ fontSize: 'clamp(30px, 4vw, 52px)', lineHeight: 1.08 }}>{section.title}</h2>
           <div className="mt-7 space-y-4">
@@ -102,7 +104,7 @@ function ExperiencesSection({ section }: { section: LandingSection }) {
             const image = asMedia(item.image)
             return (
               <article key={`${item.title}-${idx}`} className="group">
-                {image?.url ? <div className="landing-media-frame overflow-hidden mb-5" style={{ ...mediaFrameStyle(item.imageDisplay), borderRadius: 22 }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" style={mediaObjectStyle(item.imageDisplay)} /></div> : null}
+                {image?.url ? <div className={mediaFrameClassName(item.imageDisplay, "overflow-hidden mb-5")} style={{ ...mediaFrameStyle(item.imageDisplay), borderRadius: 22 }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" style={mediaObjectStyle(item.imageDisplay)} /></div> : null}
                 <h3 className="font-serif text-2xl">{item.title}</h3>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{item.description}</p>
               </article>
@@ -201,7 +203,7 @@ function GallerySection({ section }: { section: LandingSection }) {
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
-        {image ? <div className="landing-media-frame overflow-hidden" style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
+        {image ? <div className={mediaFrameClassName(section.mediaDisplay, "overflow-hidden")} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
           <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" style={mediaObjectStyle(section.mediaDisplay)} />
         </div> : null}
       </div>

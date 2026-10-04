@@ -452,3 +452,18 @@ Sau đó vào Admin → Media Library → **Quét ảnh trên máy**. Asset impo
 - Ảnh Landing (Welcome, Gallery, Experience) có `mediaDisplay`: tỉ lệ `3:2 / 1:1 / 4:5 / 16:9`, width 40–100%, align trái/giữa/phải và crop X/Y. Mobile luôn full width.
 - Hero/Banner là background full khung nên chỉ expose crop X/Y. Room và Tour card/gallery vẫn cố định 3:2.
 - Các thiết lập trên nằm trong JSON landing hiện tại, không cần migration schema và không ảnh hưởng DB/media cũ.
+
+## Landing showcase image display
+
+Welcome main and Gallery main can be styled independently from Admin without changing the original media file:
+
+- **Container**: stays inside the normal content column, desktop size 40–100%.
+- **Wide**: desktop image can grow to 160% of the content width. The Welcome section switches to a stacked showcase layout so the image does not overlap its text.
+- **Full Bleed**: desktop image spans the viewport width.
+- **Mobile full width**: optionally escapes section padding and spans the phone viewport.
+- **Tablet / iPad full width**: optionally spans the viewport from 768–1023px.
+- Aspect ratio, left/center/right alignment, crop X and crop Y remain configurable.
+
+Room cards, room galleries and tour cards/galleries remain fixed at 3:2.
+
+These settings are stored inside the landing JSON (`mediaDisplay` / `imageDisplay`) so no database migration is required. Existing landing records without the new fields continue to render as Container / 100% / no full-bleed.

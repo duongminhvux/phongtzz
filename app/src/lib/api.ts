@@ -1,5 +1,5 @@
 import { normalizeSite } from './media'
-import type { BookingRequestPayload, PublicSite, TourBookingRequestPayload } from '../types/api'
+import type { BookingRequestPayload, PublicSite } from '../types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
@@ -35,10 +35,6 @@ export async function createBookingRequest(payload: BookingRequestPayload) {
     method: 'POST',
     body: JSON.stringify(payload),
   })
-}
-
-export async function createTourBookingRequest(payload: TourBookingRequestPayload): Promise<{ id: string }> {
-  return request<{ id: string }>('/tour-booking-requests', { method: 'POST', body: JSON.stringify(payload) })
 }
 
 export function readTrackingParams() {

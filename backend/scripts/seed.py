@@ -11,7 +11,7 @@ from app.core.config import get_settings
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
 from app.media import canonicalize_landing_media, canonicalize_tour_page_media, set_room_media, set_tour_media
-from app.models import Admin, BookingRequest, LandingPageSetting, MediaAsset, Room, RoomMedia, Tour, TourAddon, TourBookingRequest, TourItineraryDay, TourMedia, TourPageSetting
+from app.models import Admin, BookingRequest, LandingPageSetting, MediaAsset, Room, RoomMedia, Tour, TourAddon, TourItineraryDay, TourMedia, TourPageSetting
 
 BOOKING_SEED_FILE = ROOT / 'seed' / 'booking_seed.json'
 SEED_ASSETS_DIR = ROOT / 'seed' / 'assets'
@@ -40,14 +40,31 @@ def blank_seed() -> dict:
         'landing': {
             'brand': {
                 'name': 'Homestay',
+                'siteTitle': 'Homestay | Ha Giang',
                 'logoText': 'Homestay',
                 'phone': '',
+                'whatsapp': '',
+                'whatsappUrl': '',
+                'zalo': '',
+                'zaloUrl': '',
                 'email': '',
                 'address': '',
                 'facebookUrl': '',
                 'instagramUrl': '',
-                'mapEmbedUrl': '',
                 'logo': None,
+                'favicon': None,
+            },
+            'seo': {
+                'canonicalBaseUrl': '',
+                'homeTitle': 'Homestay | Ha Giang',
+                'homeDescription': '',
+                'roomsTitle': 'Rooms | Homestay',
+                'roomsDescription': '',
+                'toursTitle': 'Ha Giang Loop Tours | Homestay',
+                'toursDescription': '',
+                'bookingTitle': 'Booking Request | Homestay',
+                'bookingDescription': '',
+                'ogImage': None,
             },
             'theme': {
                 'fontFamily': 'Inter, sans-serif',
@@ -126,9 +143,9 @@ def blank_seed() -> dict:
             'reviews': [],
             'faqTitle': 'FAQ',
             'faq': [],
-            'bookingTitle': 'Book a Tour',
+            'bookingTitle': 'Add a tour to your stay',
             'bookingDescription': '',
-            'bookingButtonText': 'Book a Tour',
+            'bookingButtonText': 'Request room + optional tour',
         },
         'tours': [],
         'tourAddons': [],
@@ -223,8 +240,8 @@ def reset_site_content(db, seed: dict, template: str, settings, *, clear_media: 
     db.query(BookingRequest).filter(BookingRequest.room_id.is_not(None)).update(
         {BookingRequest.room_id: None}, synchronize_session=False
     )
-    db.query(TourBookingRequest).filter(TourBookingRequest.tour_id.is_not(None)).update(
-        {TourBookingRequest.tour_id: None}, synchronize_session=False
+    db.query(BookingRequest).filter(BookingRequest.tour_id.is_not(None)).update(
+        {BookingRequest.tour_id: None, BookingRequest.tour_start_date: None, BookingRequest.riding_option: None, BookingRequest.bus_transfer: None, BookingRequest.tour_addons: [], BookingRequest.tour_snapshot: {}, BookingRequest.dietary_requirements: None}, synchronize_session=False
     )
     db.query(RoomMedia).delete(synchronize_session=False)
     db.query(Room).delete(synchronize_session=False)
@@ -239,7 +256,7 @@ def reset_site_content(db, seed: dict, template: str, settings, *, clear_media: 
     if clear_media:
         clear_media_root(settings)
     insert_site(db, seed, template, settings)
-    print(f"Reset landing, rooms, tours and media using '{template}' template. Room/tour booking requests were preserved.")
+    print(f"Reset landing, rooms, tours and media using '{template}' template. Booking requests were preserved; optional tour links were cleared.")
 
 
 def main() -> None:

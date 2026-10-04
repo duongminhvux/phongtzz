@@ -140,6 +140,16 @@ class BookingRequest(Base):
     room_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('rooms.id', ondelete='SET NULL'), nullable=True)
     room: Mapped[Room | None] = relationship('Room', back_populates='bookings')
 
+    # Optional Ha Giang Loop tour attached to the same room booking request.
+    tour_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('tours.id', ondelete='SET NULL'), nullable=True, index=True)
+    tour_start_date: Mapped[Date | None] = mapped_column(Date, nullable=True, index=True)
+    riding_option: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    bus_transfer: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    tour_addons: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
+    tour_snapshot: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    dietary_requirements: Mapped[str | None] = mapped_column(Text, nullable=True)
+    tour: Mapped['Tour | None'] = relationship('Tour', back_populates='bookings')
+
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -152,14 +162,6 @@ class LandingPageSetting(Base):
     value: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-
-class TourBookingStatus(str, Enum):
-    NEW = 'NEW'
-    CONTACTED = 'CONTACTED'
-    CONFIRMED = 'CONFIRMED'
-    COMPLETED = 'COMPLETED'
-    CANCELLED = 'CANCELLED'
 
 
 class TourPageSetting(Base):
@@ -203,7 +205,7 @@ class Tour(Base):
     media_links: Mapped[list['TourMedia']] = relationship(
         'TourMedia', back_populates='tour', cascade='all, delete-orphan', order_by='TourMedia.sort_order'
     )
-    bookings: Mapped[list['TourBookingRequest']] = relationship('TourBookingRequest', back_populates='tour')
+    bookings: Mapped[list['BookingRequest']] = relationship('BookingRequest', back_populates='tour')
 
     @property
     def media(self) -> list[dict]:
@@ -274,34 +276,3 @@ class TourAddon(Base):
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-
-class TourBookingRequest(Base):
-    __tablename__ = 'tour_booking_requests'
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
-    tour_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('tours.id', ondelete='SET NULL'), nullable=True, index=True)
-    full_name: Mapped[str] = mapped_column(String(120), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    whatsapp: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
-    start_date: Mapped[Date] = mapped_column(Date, nullable=False, index=True)
-    riding_option: Mapped[str] = mapped_column(String(80), nullable=False)
-    guests: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    bus_transfer: Mapped[str] = mapped_column(String(80), nullable=False)
-    addons: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
-    tour_snapshot: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    dietary_requirements: Mapped[str | None] = mapped_column(Text, nullable=True)
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    status: Mapped[TourBookingStatus] = mapped_column(SQLEnum(TourBookingStatus), default=TourBookingStatus.NEW, nullable=False, index=True)
-    internal_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    quoted_price: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    quoted_currency: Mapped[str | None] = mapped_column(String(12), nullable=True)
-    source: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    page_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    utm_source: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    utm_medium: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    utm_campaign: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    tour: Mapped[Tour | None] = relationship('Tour', back_populates='bookings')

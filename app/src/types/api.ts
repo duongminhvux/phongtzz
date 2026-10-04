@@ -126,6 +126,7 @@ export type LandingSection = Record<string, any> & {
 
 export type LandingPage = Record<string, any> & {
   brand?: Record<string, any>
+  seo?: Record<string, any>
   theme?: Record<string, any>
   header?: Record<string, any>
   footer?: Record<string, any>
@@ -152,25 +153,12 @@ export type BookingRequestPayload = {
   guests: number
   room_id?: string
   message?: string
-  source?: string
-  page_url?: string
-  utm_source?: string
-  utm_medium?: string
-  utm_campaign?: string
-}
-
-export type TourBookingRequestPayload = {
-  full_name: string
-  email: string
-  whatsapp: string
-  start_date: string
-  tour_id: string
-  riding_option: string
-  guests: number
-  bus_transfer: string
-  addon_ids: string[]
+  tour_id?: string
+  tour_start_date?: string
+  riding_option?: string
+  bus_transfer?: string
+  addon_ids?: string[]
   dietary_requirements?: string
-  notes?: string
   source?: string
   page_url?: string
   utm_source?: string

@@ -5,9 +5,10 @@ import Rooms from './pages/Rooms'
 import Contact from './pages/Contact'
 import Tours from './pages/Tours'
 import TourDetail from './pages/TourDetail'
-import BookTour from './pages/BookTour'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import SeoManager from './components/SeoManager'
+import FloatingContact from './components/FloatingContact'
 import { getPublicSite } from './lib/api'
 import type { PublicSite } from './types/api'
 
@@ -65,16 +66,17 @@ export default function App() {
 
   return (
     <div style={style}>
+      <SeoManager site={site} />
       <Navbar landing={site.landing} />
       <Routes>
         <Route path="/" element={<Home landing={site.landing} rooms={site.rooms} />} />
         <Route path="/rooms" element={<Rooms landing={site.landing} rooms={site.rooms} />} />
-        <Route path="/contact" element={<Contact landing={site.landing} rooms={site.rooms} />} />
+        <Route path="/contact" element={<Contact landing={site.landing} rooms={site.rooms} tours={site.tours} addons={site.tour_addons} />} />
         <Route path="/tours" element={<Tours page={site.tours_page} tours={site.tours} addons={site.tour_addons} />} />
         <Route path="/tours/:slug" element={<TourDetail tours={site.tours} />} />
-        <Route path="/book-tour" element={<BookTour page={site.tours_page} tours={site.tours} addons={site.tour_addons} />} />
       </Routes>
       <Footer landing={site.landing} />
+      <FloatingContact landing={site.landing} />
     </div>
   )
 }

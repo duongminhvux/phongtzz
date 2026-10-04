@@ -15,6 +15,12 @@ export function mediaUrl(item: MediaItem | string | null | undefined): string {
   return asMedia(item)?.url || ''
 }
 
+export function mediaAspect(item: MediaItem | string | null | undefined, landscape = '3/2'): string {
+  const media = asMedia(item)
+  if (media?.width && media?.height && media.height > media.width) return '2/3'
+  return landscape
+}
+
 export function normalizeMediaList(value: Array<MediaItem | string> | undefined): MediaItem[] {
   return (value || [])
     .map((item, index) => {
@@ -36,7 +42,7 @@ export function normalizeLandingPage(source: LandingPage): LandingPage {
       return section
     })
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-  return { ...source, brand: { ...(source.brand || {}), logo: asMedia(source.brand?.logo) }, sections }
+  return { ...source, brand: { ...(source.brand || {}), logo: asMedia(source.brand?.logo), favicon: asMedia(source.brand?.favicon) }, seo: { ...(source.seo || {}), ogImage: asMedia(source.seo?.ogImage) }, sections }
 }
 
 export function normalizeRoom(room: Room): Room {

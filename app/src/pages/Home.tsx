@@ -1,7 +1,7 @@
 import { useEffect, useMemo, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Bed, Check, MapPin, Star, Users } from 'lucide-react'
-import { asMedia, mediaUrl, normalizeMediaList } from '../lib/media'
+import { asMedia, mediaAspect, mediaUrl, normalizeMediaList } from '../lib/media'
 import type { LandingPage, LandingSection, Room } from '../types/api'
 
 const formatPrice = (price: number | null | undefined, labels: Record<string, any>) => {
@@ -70,12 +70,10 @@ function WelcomeSection({ section }: { section: LandingSection }) {
   return (
     <section className="py-24 lg:py-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-24 items-center">
-        <div className="grid grid-cols-2 gap-4">
-          {images.slice(0, 2).map((image, index) => (
-            <div key={`${image.url}-${index}`} className={`overflow-hidden ${index === 1 ? 'mt-12' : ''}`} style={{ borderRadius: 24, aspectRatio: '4/5' }}>
-              <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover" />
-            </div>
-          ))}
+        <div>
+          {images[0] ? <div className="overflow-hidden" style={{ borderRadius: 24, aspectRatio: '1/1' }}>
+            <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" />
+          </div> : null}
         </div>
         <div>
           <span className="font-sans text-xs uppercase tracking-widest text-black/40">{section.eyebrow}</span>
@@ -102,7 +100,7 @@ function ExperiencesSection({ section }: { section: LandingSection }) {
             const image = asMedia(item.image)
             return (
               <article key={`${item.title}-${idx}`} className="group">
-                {image?.url ? <div className="overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: '4/3' }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" /></div> : null}
+                {image?.url ? <div className="overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: mediaAspect(image) }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" /></div> : null}
                 <h3 className="font-serif text-2xl">{item.title}</h3>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{item.description}</p>
               </article>
@@ -132,8 +130,8 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
         {visibleRooms.length ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {visibleRooms.map((room) => (
-              <Link key={room.id} to={`/contact?roomId=${room.id}`} className="group block">
-                <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: '4/3' }}>
+              <Link key={room.id} to={`/rooms?room=${room.slug}`} className="group block">
+                <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: mediaAspect(room.images?.[0]) }}>
                   {mediaUrl(room.images?.[0]) ? (
                     <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
@@ -196,18 +194,14 @@ function TestimonialsSection({ section }: { section: LandingSection }) {
 }
 
 function GallerySection({ section }: { section: LandingSection }) {
-  const images = normalizeMediaList(section.images)
+  const image = normalizeMediaList(section.images)[0]
   return (
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {images.slice(0, 8).map((image, index) => (
-            <div key={`${image.url}-${index}`} className={`overflow-hidden ${index === 0 ? 'md:col-span-2 md:row-span-2' : ''}`} style={{ borderRadius: 20, aspectRatio: index === 0 ? '1/1' : '4/5' }}>
-              <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-            </div>
-          ))}
-        </div>
+        {image ? <div className="mx-auto max-w-4xl overflow-hidden" style={{ borderRadius: 24, aspectRatio: '1/1' }}>
+          <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+        </div> : null}
       </div>
     </section>
   )

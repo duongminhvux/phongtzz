@@ -2,6 +2,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 from sqlalchemy.orm import Session
+from PIL import Image
 
 from app.core.config import get_settings
 from app.models import LandingPageSetting, MediaAsset, Room, RoomMedia, Tour, TourMedia, TourPageSetting
@@ -25,6 +26,30 @@ def storage_path_from_url(url: str) -> str | None:
     value = url[len(prefix):].strip('/')
     return value or None
 
+
+
+
+def local_image_metadata(storage_path: str | None) -> dict[str, Any]:
+    if not storage_path:
+        return {}
+    settings = get_settings()
+    path = (settings.media_root_path / storage_path).resolve()
+    root = settings.media_root_path.resolve()
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return {}
+    if not path.is_file():
+        return {}
+    try:
+        with Image.open(path) as image:
+            return {
+                'width': int(image.width),
+                'height': int(image.height),
+                'format': (image.format or path.suffix.lstrip('.')).lower() or None,
+            }
+    except Exception:
+        return {}
 
 def infer_source(url: str, storage_path: str | None) -> str:
     if storage_path:
@@ -88,13 +113,15 @@ def get_or_create_asset(db: Session, value: Any, *, fallback_type: str = 'image'
             original_filename = PurePosixPath(url.split('?')[0]).name
 
     source = raw.get('source') or infer_source(url, storage_path)
+    media_type = raw.get('type') or infer_media_type(url, fallback_type)
+    metadata = local_image_metadata(storage_path) if media_type == 'image' else {}
     asset = MediaAsset(
         url=url,
         storage_path=storage_path,
-        type=raw.get('type') or infer_media_type(url, fallback_type),
-        width=raw.get('width'),
-        height=raw.get('height'),
-        format=raw.get('format'),
+        type=media_type,
+        width=raw.get('width') or metadata.get('width'),
+        height=raw.get('height') or metadata.get('height'),
+        format=raw.get('format') or metadata.get('format'),
         original_filename=original_filename,
         source=source,
     )
@@ -133,7 +160,14 @@ def canonicalize_landing_media(db: Session, value: dict[str, Any]) -> dict[str, 
     brand = dict(data.get('brand') or {})
     if brand.get('logo'):
         brand['logo'] = canonical_media(db, brand.get('logo'))
+    if brand.get('favicon'):
+        brand['favicon'] = canonical_media(db, brand.get('favicon'))
     data['brand'] = brand
+
+    seo = dict(data.get('seo') or {})
+    if seo.get('ogImage'):
+        seo['ogImage'] = canonical_media(db, seo.get('ogImage'))
+    data['seo'] = seo
 
     sections: list[dict[str, Any]] = []
     for section_index, section_value in enumerate(data.get('sections') or []):
@@ -212,17 +246,21 @@ def landing_assignments(value: dict[str, Any]) -> list[dict[str, Any]]:
 
     brand = value.get('brand') or {}
     add(brand.get('logo'), 'brand.logo', 'Brand logo')
+    add(brand.get('favicon'), 'brand.favicon', 'Browser favicon')
+    seo = value.get('seo') or {}
+    add(seo.get('ogImage'), 'seo.ogImage', 'SEO OpenGraph image')
     for section in value.get('sections') or []:
         section_id = str(section.get('id') or section.get('type') or 'section')
         section_type = str(section.get('type') or 'section')
+        section_name = str(section.get('title') or section_type).strip()
         prefix = f'sections.{section_id}'
-        add(section.get('image'), f'{prefix}.image', f'{section_type}: image')
-        add(section.get('video'), f'{prefix}.video', f'{section_type}: video')
+        add(section.get('image'), f'{prefix}.image', f'Landing · {section_name} · image')
+        add(section.get('video'), f'{prefix}.video', f'Landing · {section_name} · video')
         for index, item in enumerate(section.get('images') or []):
-            add(item, f'{prefix}.images.{index}', f'{section_type}: gallery #{index + 1}', index)
+            add(item, f'{prefix}.images.{index}', f'Landing · {section_name} · image #{index + 1}', index)
         if section_type == 'experiences':
             for index, item in enumerate(section.get('items') or []):
-                add(item.get('image'), f'{prefix}.items.{index}.image', f"experiences: {item.get('title') or ('item ' + str(index + 1))}", index)
+                add(item.get('image'), f'{prefix}.items.{index}.image', f"Landing · {section_name} · {item.get('title') or ('item ' + str(index + 1))}", index)
     return output
 
 
@@ -262,7 +300,7 @@ def asset_assignments(db: Session) -> dict[str, list[dict[str, Any]]]:
                 'kind': 'tour',
                 'owner_id': tour.id,
                 'slot': f'tour.media.{link.role}',
-                'label': f'Tour: {tour.name}',
+                'label': f'Tour · {tour.name} · {link.role}',
                 'sort_order': link.sort_order,
             })
     return assignments

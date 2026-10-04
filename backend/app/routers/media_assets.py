@@ -47,7 +47,7 @@ def delete_media_asset(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Media asset not found')
     assignments = asset_assignments(db).get(asset.id, [])
     if assignments:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Media is still assigned. Remove it from landing/rooms first.')
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Media is still assigned. Remove it from landing, rooms or tours first.')
 
     storage_path = asset.storage_path
     db.delete(asset)

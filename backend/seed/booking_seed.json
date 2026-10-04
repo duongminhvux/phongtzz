@@ -9,7 +9,13 @@
       "facebookUrl": "#",
       "instagramUrl": "#",
       "mapEmbedUrl": "",
-      "logo": null
+      "logo": null,
+      "siteTitle": "Riverside Haven Homestay | Ha Giang",
+      "whatsapp": "+84 983 393 954",
+      "whatsappUrl": "",
+      "zalo": "",
+      "zaloUrl": "",
+      "favicon": null
     },
     "theme": {
       "fontFamily": "Inter, Arial, sans-serif",
@@ -50,18 +56,18 @@
     },
     "contact": {
       "title": "Send a booking request",
-      "description": "Tell us your travel dates. We will contact you to confirm room availability and complete the booking.",
+      "description": "Send one request for your Riverside Haven stay. A Ha Giang Loop tour is optional and can be added in the same form.",
       "successTitle": "Request sent!",
       "successMessage": "Thank you. Our homestay will contact you soon to confirm availability.",
       "eyebrow": "Booking Request",
       "infoTitle": "Contact info",
-      "infoDescription": "Web chỉ nhận yêu cầu đặt phòng. Homestay sẽ liên hệ ngoài để xác nhận phòng trống và hoàn tất booking.",
+      "infoDescription": "Choose your room dates first, then optionally add a Ha Giang Loop package. Our team confirms availability by email or WhatsApp.",
       "addressLabel": "Address",
       "phoneLabel": "Phone",
       "emailLabel": "Email",
-      "submitText": "Gửi yêu cầu đặt phòng",
+      "submitText": "Send Booking Request",
       "submittingText": "Đang gửi...",
-      "submitNote": "Homestay sẽ liên hệ lại để xác nhận tình trạng phòng và hoàn tất đặt phòng.",
+      "submitNote": "This is a booking request, not an automatic confirmation. We will contact you by email or WhatsApp.",
       "sendAnotherText": "Send another request"
     },
     "sections": [
@@ -100,18 +106,6 @@
             "url": "/uploads/seed/gallery-landscape-1.jpg",
             "type": "image",
             "sort_order": 0,
-            "alt": ""
-          },
-          {
-            "url": "/uploads/seed/gallery-guest-1.jpg",
-            "type": "image",
-            "sort_order": 1,
-            "alt": ""
-          },
-          {
-            "url": "/uploads/seed/pool-area.jpg",
-            "type": "image",
-            "sort_order": 2,
             "alt": ""
           }
         ]
@@ -236,30 +230,6 @@
             "type": "image",
             "sort_order": 0,
             "alt": ""
-          },
-          {
-            "url": "/uploads/seed/gallery-guest-1.jpg",
-            "type": "image",
-            "sort_order": 1,
-            "alt": ""
-          },
-          {
-            "url": "/uploads/seed/gallery-guest-2.jpg",
-            "type": "image",
-            "sort_order": 2,
-            "alt": ""
-          },
-          {
-            "url": "/uploads/seed/gallery-yoga.jpg",
-            "type": "image",
-            "sort_order": 3,
-            "alt": ""
-          },
-          {
-            "url": "/uploads/seed/gallery-landscape-1.jpg",
-            "type": "image",
-            "sort_order": 4,
-            "alt": ""
           }
         ]
       },
@@ -302,6 +272,23 @@
       "guestsSuffix": "guests",
       "bedFallback": "bed",
       "noRoomsText": "Hiện chưa có phòng nào để hiển thị."
+    },
+    "seo": {
+      "canonicalBaseUrl": "https://riversidehavenhagiang.com",
+      "homeTitle": "Riverside Haven Homestay | Ha Giang",
+      "homeDescription": "Riverside Haven is a peaceful homestay in Ha Giang with comfortable rooms, local experiences and Ha Giang Loop motorbike tours.",
+      "roomsTitle": "Rooms | Riverside Haven Homestay Ha Giang",
+      "roomsDescription": "Explore comfortable rooms at Riverside Haven, a relaxing base for your Ha Giang journey.",
+      "toursTitle": "Ha Giang Loop Motorbike Tours | Riverside Haven",
+      "toursDescription": "Ride the Ha Giang Loop with local guides. Choose 2D1N, 3D2N or 4D3N motorbike adventures from Riverside Haven.",
+      "bookingTitle": "Booking Request | Riverside Haven",
+      "bookingDescription": "Send one booking request for your Riverside Haven room and optionally add a Ha Giang Loop tour.",
+      "ogImage": {
+        "url": "/uploads/seed/gallery-landscape-1.jpg",
+        "type": "image",
+        "sort_order": 0,
+        "alt": "Riverside Haven Ha Giang"
+      }
     }
   },
   "rooms": [
@@ -526,9 +513,9 @@
         "answer": "Guests can leave larger luggage at Riverside Haven while riding the loop."
       }
     ],
-    "bookingTitle": "Ready to ride the loop?",
-    "bookingDescription": "Send a tour booking request. We will confirm availability and contact you by email or WhatsApp.",
-    "bookingButtonText": "Book a Tour"
+    "bookingTitle": "Add a Ha Giang Loop to your stay",
+    "bookingDescription": "Choose a tour package, then add it to the same booking request as your Riverside Haven room.",
+    "bookingButtonText": "Add Tour to Booking"
   },
   "tours": [
     {

@@ -1,100 +1,150 @@
-# Riverside Haven Booking + Ha Giang Loop Tours
+# Riverside Haven — Homestay, Rooms & Ha Giang Loop Tours
 
-Fresh-install repo cho homestay chạy bằng Docker trên laptop/server riêng. Repo này **không cần Cloudinary** và không cần merge DB cũ.
+Fresh-install repo cho Riverside Haven chạy bằng Docker trên laptop/server riêng. Repo dùng **PostgreSQL làm source of truth** và lưu media runtime trực tiếp trên ổ host tại `./data/uploads`; không dùng Cloudinary và không cần merge database cũ.
 
-## Kiến trúc
+## Luồng hệ thống
 
 ```text
 Admin
   -> FastAPI
-  -> PostgreSQL             (content, rooms, tours, booking requests, media metadata)
-  -> ./data/uploads         (ảnh/video thật trên ổ host)
+  -> PostgreSQL             content / rooms / tours / booking requests / media metadata
+  -> ./data/uploads         ảnh + video runtime trên ổ host
 
 Public website
-  -> GET /api/site          (một snapshot DB: landing + rooms + tours)
-  -> /uploads/...           (media local persistent)
+  -> GET /api/site          snapshot landing + rooms + tours
+  -> /uploads/...           media local persistent
 ```
 
-DB là source of truth. FE không có business fake/mock fallback.
+Public FE không fallback business fake/mock. Seed chỉ dùng để tạo nội dung lần đầu khi database trống; sau đó admin sửa gì thì dữ liệu trong DB là dữ liệu thật.
 
-## Chức năng public
+## Public routes
 
 ```text
-/                    Landing page
-/rooms               Rooms
-/contact             Room Booking Request
+/                    Home / Landing
+/rooms               Rooms + room detail
 /tours               Ha Giang Loop Tour Overview
-/tours/:slug         Tour detail + full itinerary
-/book-tour           Tour Booking Request
+/tours/:slug         Tour detail + itinerary
+/contact             Một Booking Request chung: room + tour optional
 ```
 
-### Tour Overview seed
+Không còn trang `/book-tour`. Tour vẫn có trang giới thiệu và chi tiết riêng, nhưng nút **Book This Tour** đưa khách sang `/contact?tour=<slug>` và preselect tour trong cùng form booking.
 
-Template `booking` tạo sẵn:
+## Booking Room + Tour optional
 
-- **The Express Loop** — 2D1N — $90
-- **The Classic Loop** — 3D2N — $150
-- **The Explorer Loop** — 4D3N — $200
-- Hero: `Ha Giang Loop Motorbike Adventure`
-- Slogan: `Ride. Explore. Connect.`
-- What's Included
-- day-by-day itineraries
-- gallery + international guest reviews
-- safety / practical FAQ
-- CTA sang Tour Booking Request
+Form `/contact` giữ flow booking phòng, sau đó có khối **Add a Ha Giang Loop tour — Optional**.
 
-Tất cả chỉ là **seed lần đầu**. Sau khi DB đã được khởi tạo, admin sửa DB và restart không ghi đè lại.
-
-### Tour Booking Request
-
-Form Tour dùng cùng design language/flow với booking phòng nhưng lưu bảng riêng:
+Phần phòng:
 
 - Full Name *
-- Email *
 - Phone / WhatsApp *
-- Tour Start Date *
-- Tour Package *
-- Riding Option *
+- Email
+- Check-in *
+- Check-out *
 - Number of Guests *
+- Room
+- Notes
+
+Nếu khách chọn Tour thì form mở thêm:
+
+- Tour Package
+- Tour Start Date *
+- Riding Option *
 - Bus Transfer *
 - Add-ons / Upgrades
 - Dietary Requirements
-- Notes / Special Requests
 
-Submit chỉ tạo **booking request**, không tự coi là booking confirmed. Admin xử lý status:
+Khách có thể **đặt phòng mà không chọn tour**. Khi có tour, booking request snapshot lại package / price / riding / bus / add-ons để sau này admin sửa giá tour không làm mất context của request cũ.
+
+Admin xử lý chung trong **Room Bookings** với status:
 
 ```text
 NEW -> CONTACTED -> CONFIRMED -> COMPLETED
                          `-----> CANCELLED
 ```
 
-Tour request snapshot lại package + selected add-ons để admin sửa tour/giá sau này không làm mất context request cũ.
+Trong bảng Room Bookings:
 
-## Business rules trong DB
+- click số điện thoại -> WhatsApp (`wa.me`)
+- click email -> `mailto:`
+- nếu request có tour thì hiển thị tour/date/riding/bus/add-ons/dietary ngay trong cùng record.
 
-Không hard-code vào FE. Admin sửa được:
+## Rooms UX
 
-- riding options + `price_modifier`
-- bus transfer options + `price_modifier`
-- add-ons/upgrades + price/currency/unit
-- tour price/currency
-
-Seed mặc định hiện tại:
+Home `Our Rooms` không đưa khách thẳng tới booking nữa.
 
 ```text
-Easy-Rider                modifier 0 USD (recommended)
-Self-Driving              modifier 0 USD
-Hanoi round-trip VIP bus  modifier 0 USD (included wording)
-Self-arranged transport   modifier 0 USD
-Private Room Upgrade      +350,000 VND / night
-Pre-tour Riverside room   contact for room price
+Home room card
+  -> /rooms?room=<slug>
+  -> trang Rooms tự mở detail của đúng phòng đó
 ```
 
-Đây là default seed để chạy lần đầu; có thể đổi ngay trong Admin.
+Từ room detail khách mới chọn gửi booking request.
 
-## Media local persistent
+## Tours seed
 
-Ảnh/video runtime nằm ở:
+Template `booking` tạo sẵn:
+
+- **The Express Loop** — 2D1N — $90
+- **The Classic Loop** — 3D2N — $150
+- **The Explorer Loop** — 4D3N — $200
+- Hero `Ha Giang Loop Motorbike Adventure`
+- slogan `Ride. Explore. Connect.`
+- What's Included
+- itinerary theo ngày
+- gallery + reviews
+- FAQ / safety
+- riding options / bus options / add-ons
+
+Tất cả là dữ liệu seed, không hard-code vào FE.
+
+## Media Library + “Chọn ảnh”
+
+Admin không còn các ô upload file rải rác. Landing, Rooms và Tours dùng chung component **Media Picker**:
+
+1. bấm **Chọn ảnh** / **Chọn media**;
+2. popup Media Library mở ra;
+3. ảnh đã upload được ưu tiên lên trước ảnh seed;
+4. có search theo filename / vị trí đang dùng;
+5. có thể chọn asset đã có;
+6. hoặc bấm **Upload ảnh mới** ngay trong popup;
+7. một `media_asset` có thể tái sử dụng ở nhiều section / room / tour.
+
+Media Library cũng có upload và **Gán nhanh vào...**:
+
+- Brand logo
+- Browser favicon
+- SEO OpenGraph image
+- Landing Hero / Banner / Welcome / Gallery
+- Room gallery
+- Tours page Hero / Gallery
+- Tour Hero / Gallery
+
+Mỗi card media hiển thị asset đang được dùng ở đâu. Asset chỉ xóa được khi không còn assignment.
+
+### Room gallery order
+
+Room dùng bảng `room_media`:
+
+```text
+room_id
+media_asset_id
+sort_order
+alt
+```
+
+Admin có thể:
+
+- thêm ảnh từ Media Library;
+- replace;
+- remove;
+- move up / move down;
+- ảnh `#1` là cover.
+
+Thứ tự public FE nhận chính là `room_media.sort_order` trong DB.
+
+## Local persistent media
+
+Media runtime nằm ngoài container:
 
 ```text
 ./data/uploads
@@ -103,8 +153,8 @@ Pre-tour Riverside room   contact for room price
 Docker bind mount:
 
 ```text
-./data/uploads -> API /data/uploads          (read/write)
-./data/uploads -> Landing /app/dist/uploads  (read-only)
+./data/uploads -> API /data/uploads          read/write
+./data/uploads -> Landing /app/dist/uploads  read-only
 ```
 
 DB lưu URL tương đối:
@@ -113,35 +163,83 @@ DB lưu URL tương đối:
 /uploads/2026/10/<uuid>.webp
 ```
 
-nên đổi domain/IP/máy không cần rewrite URL DB.
+Nên đổi domain / IP / máy chủ không cần rewrite URL DB.
 
-Ảnh upload được resize tối đa 1920px + WebP. Video được ffmpeg chuẩn hóa sang MP4.
+Ảnh upload được resize tối đa 1920 px và convert WebP; video được chuẩn hóa MP4. Seed media cũng được copy vào cùng storage local khi first run.
 
-### Media DB
+## SEO
 
-```text
-media_assets
-room_media     -> room + sort_order
-tour_media     -> tour + role(hero/gallery/itinerary) + sort_order
-```
+Landing Builder có khu **SEO** cho admin chỉnh trực tiếp trong DB:
 
-Media Library trong admin hiển thị asset đang được dùng tại:
+- Home title + description
+- Rooms title + description
+- Tours title + description
+- Booking title + description
+- canonical base URL
+- OpenGraph image
+- browser/site title
+- favicon
 
-- Landing hero/banner/welcome/gallery/experience/logo
-- Room nào + thứ tự #1/#2/...
-- Tours page hero/gallery
-- Tour nào + role + thứ tự
+Public FE cập nhật theo route:
 
-Room gallery có upload / replace / remove / move up / move down; `room_media.sort_order` là thứ tự FE đọc thật.
+- `<title>`
+- meta description
+- canonical
+- OpenGraph
+- Twitter Card
+- dynamic favicon
+- JSON-LD `LodgingBusiness`
+- JSON-LD `TouristTrip` cho tour detail
+
+Repo cũng có fallback SEO trong `app/index.html`, `robots.txt` và `sitemap.xml`. Default favicon là `RH`; admin có thể chọn favicon khác từ Media Library, không cần sửa source.
+
+> Đây vẫn là Vite SPA. Google có thể render metadata động sau JavaScript; homepage có static fallback ngay trong HTML. Nếu sau này cần social crawler/SEO SSR tuyệt đối theo từng tour thì có thể chuyển public FE sang SSR/prerender, nhưng không bắt buộc cho flow hiện tại.
+
+## WhatsApp + Zalo bubbles
+
+Public site có hai nút tròn floating WhatsApp và Zalo.
+
+Landing Builder chỉnh được:
+
+- WhatsApp number
+- WhatsApp URL custom
+- Zalo number / ID
+- Zalo URL custom
+
+Nếu Zalo chưa nhập riêng, public FE fallback sang số điện thoại của homestay để vẫn hiện đủ hai bubble. Link mở app tương ứng trên điện thoại nếu hệ điều hành/browser hỗ trợ hoặc mở web fallback.
+
+## Landing image ratios
+
+- `welcome-main`: đúng **1 ảnh lớn 1:1**
+- `gallery-main`: đúng **1 ảnh lớn 1:1**
+- các card ảnh nhỏ trên Home: landscape **3:2**, portrait **2:3** dựa trên metadata width/height của media
+- Hero/Banner/Room detail có layout riêng vì không phải “khung ảnh nhỏ” của landing.
+
+## Landing save
+
+Landing vẫn autosave sau khi admin dừng chỉnh khoảng 700 ms, nhưng có thêm nút sticky **Lưu landing** để ép lưu snapshot mới nhất ngay lập tức.
+
+Khi save/upload/assign/delete thành công hoặc lỗi, admin hiện **floating notification** ở góc trang rồi tự ẩn.
+
+## Browser tab & favicon
+
+Trong Landing Builder -> `Brand, liên hệ & browser tab`:
+
+- `Tên browser tab / site title`
+- `Favicon / logo nhỏ bên trái tên tab`
+
+Favicon được chọn từ cùng Media Library. Một ảnh favicon vẫn là một `media_asset`, do đó có thể tái sử dụng ở chỗ khác nếu muốn.
 
 ## DB tables chính
+
+Fresh DB hiện có:
 
 ```text
 admins
 landing_page_settings
+media_assets
 rooms
 room_media
-media_assets
 booking_requests
 
 tour_page_settings
@@ -149,43 +247,44 @@ tours
 tour_itinerary_days
 tour_media
 tour_addons
-tour_booking_requests
 ```
 
-## Admin
+Tour request không còn bảng riêng; optional-tour data nằm trong `booking_requests`.
 
-Admin có các khu:
+## Admin navigation
 
 ```text
 Dashboard
 Room Bookings
-Tour Bookings
 Rooms
 Tours
 Landing Builder
 Media Library
 ```
 
-`Tours` quản lý:
+### Tours
 
-- Tour Overview `/tours`
-- package name / slug / duration / price / currency
+Admin chỉnh được:
+
+- Tour Overview
+- name / slug / tagline
+- duration / price / currency
 - highlights / included / excluded
 - riding options
 - bus transfer options
-- itinerary per day
+- itinerary từng ngày
 - FAQ
 - hero/gallery media
-- featured/public/sort
+- order / featured / active
 - global Tour Add-ons
-
-`Tour Bookings` có email + WhatsApp shortcut, tour/date/guests, riding/bus, add-ons, dietary/notes, status, quote và internal note.
 
 ## First run trên máy mới
 
 Yêu cầu: Docker + Docker Compose.
 
-Nếu test localhost, không cần `.env`:
+### Chạy nhanh localhost
+
+Không cần `.env`:
 
 ```bash
 docker compose up -d --build
@@ -197,66 +296,24 @@ Mặc định:
 INITIAL_SITE_TEMPLATE=booking
 ```
 
-Khi DB trống, API startup sẽ:
+Khi DB hoàn toàn trống, API startup sẽ:
 
 1. tạo schema;
 2. tạo admin;
 3. copy `backend/seed/assets` -> `./data/uploads/seed`;
-4. seed landing + 3 rooms;
+4. seed Landing + Rooms;
 5. seed Tour Overview + 3 tours + itinerary + add-ons;
-6. start API;
-7. những lần restart sau thấy site đã tồn tại thì **skip seed**.
+6. API healthy;
+7. Landing/Admin start.
 
-### First run trắng
+Các lần restart sau thấy site đã tồn tại thì **skip seed**, không ghi đè dữ liệu admin.
 
-Copy `.env.example` -> `.env`, đặt:
+### Chọn website trắng ở first run
+
+Copy `.env.example` -> `.env` rồi đặt:
 
 ```env
 INITIAL_SITE_TEMPLATE=blank
-```
-
-rồi:
-
-```bash
-docker compose up -d --build
-```
-
-Blank tạo shell editable, không tạo demo rooms/tours/reviews/media.
-
-## Nếu chuyển từ project cũ: chạy fresh, không merge
-
-Dùng repo này ở một folder mới. Nếu muốn bỏ hẳn DB/container test cũ:
-
-```bash
-docker compose down -v
-```
-
-Sau đó trong repo mới:
-
-```bash
-docker compose up -d --build
-```
-
-`-v` xóa named PostgreSQL volume của compose hiện tại. `./data/uploads` là bind mount nên nếu muốn xóa media cũ thì xóa folder đó có chủ ý.
-
-## Production + domain
-
-```text
-.env.example -> .env
-```
-
-Sửa tối thiểu:
-
-```env
-PUBLIC_FRONTEND_URL=https://your-domain.com
-PUBLIC_ADMIN_URL=https://admin.your-domain.com
-VITE_API_URL=https://api.your-domain.com/api
-NEXT_PUBLIC_API_URL=https://api.your-domain.com/api
-SECRET_KEY=<strong-random-secret>
-ADMIN_EMAIL=<admin-email>
-ADMIN_PASSWORD=<strong-password>
-POSTGRES_PASSWORD=<strong-password>
-INITIAL_SITE_TEMPLATE=booking
 ```
 
 Sau đó:
@@ -265,110 +322,110 @@ Sau đó:
 docker compose up -d --build
 ```
 
-Cloudflare Tunnel route gợi ý:
+`blank` tạo editable shell, không tạo room/tour/gallery demo.
+
+## Deploy domain / Cloudflare Tunnel
+
+Copy:
 
 ```text
-your-domain.com       -> landing:5173
-admin.your-domain.com -> admin:3000
-api.your-domain.com   -> api:8000
+.env.example -> .env
 ```
 
-Optional container tunnel:
+Tối thiểu đổi:
 
 ```env
-CLOUDFLARE_TUNNEL_TOKEN=...
+PUBLIC_FRONTEND_URL=https://riversidehavenhagiang.com
+PUBLIC_ADMIN_URL=https://admin.your-domain.com
+VITE_API_URL=https://api.your-domain.com/api
+NEXT_PUBLIC_API_URL=https://api.your-domain.com/api
+
+SECRET_KEY=<strong-random-secret>
+ADMIN_EMAIL=<admin-email>
+ADMIN_PASSWORD=<strong-password>
+POSTGRES_PASSWORD=<strong-password>
+
+INITIAL_SITE_TEMPLATE=booking
+```
+
+Nếu dùng compose profile Cloudflare Tunnel:
+
+```env
+CLOUDFLARE_TUNNEL_TOKEN=<token>
 ```
 
 ```bash
 docker compose --profile tunnel up -d --build
 ```
 
-## Reset seed có chủ ý
+Các service chỉ bind vào `127.0.0.1` theo mặc định nên phù hợp để expose thông qua tunnel/reverse proxy.
 
-Xóa toàn bộ app tables + booking requests + local media rồi seed booking lại:
+## SMTP Gmail ví dụ
 
-```bash
-docker compose exec api python scripts/seed.py --reset-db --template booking
+Email là optional. Nếu dùng Gmail:
+
+```env
+HOMESTAY_EMAIL=riversidehaven@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=riversidehaven@gmail.com
+SMTP_PASSWORD=<GOOGLE_APP_PASSWORD>
+SMTP_FROM_EMAIL=riversidehaven@gmail.com
+SMTP_FROM_NAME=Riverside Haven
+SMTP_USE_TLS=true
 ```
 
-Reset landing/rooms/tours/media nhưng giữ room + tour booking requests:
+`SMTP_PASSWORD` phải là Google App Password nếu tài khoản Gmail yêu cầu 2-Step Verification. Không commit `.env`.
+
+## Reset content
+
+### Reset website về booking seed nhưng giữ booking requests
 
 ```bash
 docker compose exec api python scripts/seed.py --reset-content --template booking
 ```
 
-Blank:
+Reset:
+
+- landing
+- rooms
+- tours
+- tour page
+- add-ons
+- media assignments/content
+
+Booking request cũ được giữ; link tới room/tour bị xóa an toàn trước khi reset entity content.
+
+### Reset DB hoàn toàn
 
 ```bash
-docker compose exec api python scripts/seed.py --reset-db --template blank
+docker compose exec api python scripts/seed.py --reset-db --template booking
 ```
 
-## Seed source duy nhất
+Lệnh này xóa cả booking requests.
 
-```text
-backend/seed/booking_seed.json
-backend/seed/assets/
+### Fresh Docker volume hoàn toàn
+
+Nếu đúng là máy test và muốn xóa PostgreSQL volume:
+
+```bash
+docker compose down -v
 ```
 
-Seed không nằm trong FE. Khi first-run, media seed cũng đi vào hệ media local/DB giống ảnh admin upload.
-
-## Endpoint chính
-
-Public:
-
-```text
-GET  /api/site
-POST /api/booking-requests
-POST /api/tour-booking-requests
-GET  /api/health
-GET  /uploads/<path>
-```
-
-Admin:
-
-```text
-POST   /api/auth/login
-
-GET    /api/admin/landing-page
-PUT    /api/admin/landing-page
-
-GET    /api/admin/rooms
-POST   /api/admin/rooms
-PATCH  /api/admin/rooms/{id}
-DELETE /api/admin/rooms/{id}
-
-GET    /api/admin/tour-page
-PUT    /api/admin/tour-page
-GET    /api/admin/tours
-POST   /api/admin/tours
-PATCH  /api/admin/tours/{id}
-DELETE /api/admin/tours/{id}
-
-GET    /api/admin/tour-addons
-POST   /api/admin/tour-addons
-PATCH  /api/admin/tour-addons/{id}
-DELETE /api/admin/tour-addons/{id}
-
-GET    /api/admin/booking-requests
-PATCH  /api/admin/booking-requests/{id}
-DELETE /api/admin/booking-requests/{id}
-
-GET    /api/admin/tour-booking-requests
-PATCH  /api/admin/tour-booking-requests/{id}
-DELETE /api/admin/tour-booking-requests/{id}
-
-POST   /api/admin/uploads/media
-GET    /api/admin/media-assets
-DELETE /api/admin/media-assets/{id}
-```
+`./data/uploads` là **bind mount trên host**, nên `down -v` không tự xóa media folder đó. Muốn fresh cả media thì tự xóa nội dung `data/uploads` nhưng giữ `.gitkeep`.
 
 ## Backup
 
-Muốn restore đầy đủ cần backup:
+Vì laptop/server tự giữ media, backup tối thiểu:
 
 ```text
 PostgreSQL
++
 ./data/uploads
 ```
 
-Rebuild/recreate container không xóa media bind-mounted.
+DB giữ metadata/assignment; filesystem giữ binary thật.
+
+## Notes build
+
+Landing dùng npm lockfile (`npm ci`) và Admin dùng pnpm lockfile (`pnpm install --frozen-lockfile`) trong Docker build. Repo không commit `node_modules`, `.next`, `dist`, runtime uploads hay secrets.

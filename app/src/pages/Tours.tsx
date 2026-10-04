@@ -51,7 +51,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
                   <ul className="mt-5 space-y-2">{tour.highlights.slice(0, 4).map((item) => <li key={item} className="flex gap-2 text-sm text-black/70"><Check size={16} className="mt-0.5 shrink-0" />{item}</li>)}</ul>
                   <div className="mt-7 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <Link to={`/tours/${tour.slug}`} className="btn-pill border border-black/15 text-center text-xs uppercase tracking-wider">View Full Itinerary</Link>
-                    <Link to={`/book-tour?tour=${tour.slug}`} className="btn-pill bg-black text-center text-xs uppercase tracking-wider text-white">Book This Tour</Link>
+                    <Link to={`/contact?tour=${tour.slug}`} className="btn-pill bg-black text-center text-xs uppercase tracking-wider text-white">Book This Tour</Link>
                   </div>
                 </div>
               </article>
@@ -78,7 +78,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
 
       <section className="px-6 pb-24"><div className="mx-auto max-w-4xl"><h2 className="text-center font-serif text-5xl">{page.faqTitle}</h2><div className="mt-10 space-y-3">{(page.faq || []).map((item) => <details key={item.question} className="group rounded-2xl bg-white p-5"><summary className="cursor-pointer list-none font-medium">{item.question}</summary><p className="mt-4 text-sm leading-6 text-black/60">{item.answer}</p></details>)}</div></div></section>
 
-      <section className="px-6 pb-28"><div className="mx-auto max-w-7xl rounded-[32px] bg-black px-7 py-14 text-center text-white md:px-12"><h2 className="font-serif text-5xl">{page.bookingTitle}</h2><p className="mx-auto mt-4 max-w-2xl text-white/60">{page.bookingDescription}</p><Link to="/book-tour" className="btn-pill mt-8 bg-white text-black">{page.bookingButtonText || 'Book a Tour'}</Link></div></section>
+      <section className="px-6 pb-28"><div className="mx-auto max-w-7xl rounded-[32px] bg-black px-7 py-14 text-center text-white md:px-12"><h2 className="font-serif text-5xl">{page.bookingTitle}</h2><p className="mx-auto mt-4 max-w-2xl text-white/60">{page.bookingDescription}</p><Link to="/contact" className="btn-pill mt-8 bg-white text-black">{page.bookingButtonText || 'Book a Tour'}</Link></div></section>
     </main>
   )
 }

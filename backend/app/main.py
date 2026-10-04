@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import get_settings
 from app.database import Base, engine
-from app.routers import auth, booking_requests, landing_page, media_assets, rooms, site, uploads, tours, tour_booking_requests
+from app.routers import auth, booking_requests, landing_page, media_assets, rooms, site, uploads, tours
 from app.services.upload import ensure_media_root
 
 settings = get_settings()
@@ -39,4 +39,3 @@ app.include_router(landing_page.router, prefix='/api')
 app.include_router(uploads.router, prefix='/api')
 app.include_router(media_assets.router, prefix='/api')
 app.include_router(tours.router, prefix='/api')
-app.include_router(tour_booking_requests.router, prefix='/api')

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { Bed, Check, ChevronLeft, ChevronRight, Star, Users, X } from 'lucide-react'
-import { mediaUrl } from '../lib/media'
+import { mediaAspect, mediaUrl } from '../lib/media'
 import type { LandingPage, Room } from '../types/api'
 
 const formatPrice = (price: number | null | undefined, labels: Record<string, any>) => {
@@ -92,12 +92,20 @@ function RoomDetailModal({ room, labels, onClose }: { room: Room; labels: Record
 }
 
 export default function Rooms({ landing, rooms }: { landing: LandingPage; rooms: Room[] }) {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [filter, setFilter] = useState('all')
   const labels = (landing.roomsPage || {}) as Record<string, any>
   const filters = Array.isArray(labels.filters) ? labels.filters : []
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  useEffect(() => {
+    const target = searchParams.get('room')
+    if (!target) return
+    const room = rooms.find((item) => item.slug === target || item.id === target)
+    if (room) setSelectedRoom(room)
+  }, [rooms, searchParams])
 
   const filteredRooms = filter === 'all' ? rooms : rooms.filter((room) => room.type === filter)
 
@@ -131,7 +139,7 @@ export default function Rooms({ landing, rooms }: { landing: LandingPage; rooms:
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {filteredRooms.map((room) => (
               <button key={room.id} onClick={() => setSelectedRoom(room)} className="group text-left">
-                <div className="relative mb-5 overflow-hidden" style={{ borderRadius: 22, aspectRatio: '16/10' }}>
+                <div className="relative mb-5 overflow-hidden" style={{ borderRadius: 22, aspectRatio: mediaAspect(room.images?.[0]) }}>
                   {mediaUrl(room.images?.[0]) ? (
                     <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
@@ -155,7 +163,7 @@ export default function Rooms({ landing, rooms }: { landing: LandingPage; rooms:
         </div>
       </section>
 
-      {selectedRoom ? <RoomDetailModal room={selectedRoom} labels={labels} onClose={() => setSelectedRoom(null)} /> : null}
+      {selectedRoom ? <RoomDetailModal room={selectedRoom} labels={labels} onClose={() => { setSelectedRoom(null); const next = new URLSearchParams(searchParams); next.delete('room'); setSearchParams(next, { replace: true }) }} /> : null}
     </main>
   )
 }

@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
-from app.models import BookingStatus, TourBookingStatus
+from app.models import BookingStatus
 
 PHONE_PATTERN = r'^[0-9+()\-\.\s]{8,25}$'
 
@@ -139,6 +139,15 @@ class BookingRequestCreate(BaseModel):
     guests: int = Field(ge=1, le=100)
     room_id: str | None = None
     message: str | None = Field(default=None, max_length=1000)
+
+    # Optional tour attached to the room request.
+    tour_id: str | None = None
+    tour_start_date: date | None = None
+    riding_option: str | None = Field(default=None, max_length=80)
+    bus_transfer: str | None = Field(default=None, max_length=80)
+    addon_ids: list[str] = Field(default_factory=list)
+    dietary_requirements: str | None = Field(default=None, max_length=2000)
+
     source: str | None = Field(default=None, max_length=255)
     page_url: str | None = Field(default=None, max_length=1000)
     utm_source: str | None = Field(default=None, max_length=255)
@@ -150,18 +159,29 @@ class BookingRequestCreate(BaseModel):
     def strip_required(cls, value: str) -> str:
         return value.strip()
 
-    @field_validator('message')
+    @field_validator('message', 'dietary_requirements')
     @classmethod
     def strip_optional(cls, value: str | None) -> str | None:
         return value.strip() if value else value
 
     @model_validator(mode='after')
-    def validate_dates(self):
+    def validate_request(self):
         today = date.today()
         if self.check_in < today:
             raise ValueError('Check-in date cannot be in the past')
         if self.check_out <= self.check_in:
             raise ValueError('Check-out date must be after check-in date')
+        if self.tour_id:
+            if not self.email:
+                raise ValueError('Email is required when adding a tour')
+            if not self.tour_start_date:
+                raise ValueError('Tour start date is required when adding a tour')
+            if self.tour_start_date < today:
+                raise ValueError('Tour start date cannot be in the past')
+            if not self.riding_option:
+                raise ValueError('Riding option is required when adding a tour')
+            if not self.bus_transfer:
+                raise ValueError('Bus transfer option is required when adding a tour')
         return self
 
 
@@ -189,6 +209,13 @@ class BookingRequestOut(BaseModel):
     utm_campaign: str | None
     room_id: str | None
     room: RoomOut | None = None
+    tour_id: str | None
+    tour_start_date: date | None
+    riding_option: str | None
+    bus_transfer: str | None
+    tour_addons: list[dict[str, Any]] = Field(default_factory=list)
+    tour_snapshot: dict[str, Any] = Field(default_factory=dict)
+    dietary_requirements: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -401,64 +428,6 @@ class TourPageOut(BaseModel):
 
 class TourPageUpdate(BaseModel):
     value: dict[str, Any]
-
-
-class TourBookingCreate(BaseModel):
-    full_name: str = Field(min_length=2, max_length=120)
-    email: EmailStr
-    whatsapp: str = Field(pattern=PHONE_PATTERN)
-    start_date: date
-    tour_id: str
-    riding_option: str = Field(min_length=2, max_length=80)
-    guests: int = Field(ge=1, le=50)
-    bus_transfer: str = Field(min_length=2, max_length=80)
-    addon_ids: list[str] = Field(default_factory=list)
-    dietary_requirements: str | None = Field(default=None, max_length=2000)
-    notes: str | None = Field(default=None, max_length=3000)
-    source: str | None = Field(default=None, max_length=255)
-    page_url: str | None = Field(default=None, max_length=1000)
-    utm_source: str | None = Field(default=None, max_length=255)
-    utm_medium: str | None = Field(default=None, max_length=255)
-    utm_campaign: str | None = Field(default=None, max_length=255)
-
-    @model_validator(mode='after')
-    def validate_start_date(self):
-        if self.start_date < date.today():
-            raise ValueError('Tour start date cannot be in the past')
-        return self
-
-
-class TourBookingUpdate(BaseModel):
-    status: TourBookingStatus | None = None
-    internal_note: str | None = Field(default=None, max_length=3000)
-    quoted_price: int | None = Field(default=None, ge=0)
-    quoted_currency: str | None = Field(default=None, max_length=12)
-
-
-class TourBookingOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: str
-    full_name: str
-    email: str
-    whatsapp: str
-    start_date: date
-    riding_option: str
-    guests: int
-    bus_transfer: str
-    addons: list[dict[str, Any]]
-    tour_snapshot: dict[str, Any]
-    dietary_requirements: str | None
-    notes: str | None
-    status: TourBookingStatus
-    internal_note: str | None
-    quoted_price: int | None
-    quoted_currency: str | None
-    source: str | None
-    page_url: str | None
-    tour_id: str | None
-    tour: TourOut | None = None
-    created_at: datetime
-    updated_at: datetime
 
 # Final public snapshot schema includes the tour domain as well as rooms/landing.
 class PublicSiteOut(BaseModel):

@@ -72,7 +72,7 @@ function WelcomeSection({ section }: { section: LandingSection }) {
   const display = normalizeLandingMediaDisplay(section.mediaDisplay)
   const showcase = display.displayMode !== 'container'
   return (
-    <section className="py-24 lg:py-32 px-6">
+    <section className="py-14 lg:py-32 px-6">
       <div className={`max-w-7xl mx-auto grid grid-cols-1 gap-14 items-center ${showcase ? 'lg:gap-14' : 'lg:grid-cols-2 lg:gap-24'}`}>
         <div className={showcase ? 'w-full' : ''}>
           {images[0] ? <div className={mediaFrameClassName(section.mediaDisplay, 'overflow-hidden')} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
@@ -93,7 +93,7 @@ function WelcomeSection({ section }: { section: LandingSection }) {
 
 function ExperiencesSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-24 px-6 bg-white">
+    <section className="py-14 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="mb-14 max-w-2xl">
           <h2 className="font-serif" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
@@ -120,7 +120,7 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
   const selectedIds = Array.isArray(section.roomIds) ? section.roomIds : []
   const visibleRooms = (selectedIds.length ? rooms.filter((room) => selectedIds.includes(room.id)) : rooms).slice(0, Number(section.limit || 3))
   return (
-    <section className="py-24 lg:py-32 px-6 bg-white">
+    <section className="py-14 lg:py-32 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-14">
           <div>
@@ -160,7 +160,7 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
 
 function AmenitiesSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-24 px-6">
+    <section className="py-14 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif text-center mb-14" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -179,7 +179,7 @@ function AmenitiesSection({ section }: { section: LandingSection }) {
 
 function TestimonialsSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-24 px-6 bg-white">
+    <section className="py-14 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif text-center mb-14" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -200,7 +200,7 @@ function TestimonialsSection({ section }: { section: LandingSection }) {
 function GallerySection({ section }: { section: LandingSection }) {
   const image = normalizeMediaList(section.images)[0]
   return (
-    <section className="py-24 px-6">
+    <section className="py-14 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         {image ? <div className={mediaFrameClassName(section.mediaDisplay, "overflow-hidden")} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
@@ -228,14 +228,5 @@ function BannerSection({ section }: { section: LandingSection }) {
 }
 
 function CtaSection({ section }: { section: LandingSection }) {
-  return (
-    <section className="px-6 py-24">
-      <div className="mx-auto max-w-5xl rounded-[32px] p-10 text-center text-white md:p-16" style={{ backgroundColor: 'var(--primary-color, #111)' }}>
-        <MapPin className="mx-auto mb-5 text-white/70" size={30} />
-        <h2 className="font-serif" style={{ fontSize: 'clamp(32px, 5vw, 68px)', lineHeight: 1.05 }}>{section.title}</h2>
-        <p className="mx-auto mt-4 max-w-2xl text-white/70" style={{ lineHeight: '28px' }}>{section.description}</p>
-        {section.buttonText ? <Link to={section.buttonLink || '/contact'} className="btn-pill mt-8 bg-white text-xs uppercase tracking-wider" style={{ color: 'var(--primary-color, #111)' }}>{section.buttonText}</Link> : null}
-      </div>
-    </section>
-  )
+  return null; // Tạm thời ẩn hoàn toàn component này
 }

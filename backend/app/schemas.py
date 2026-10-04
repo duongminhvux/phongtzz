@@ -249,6 +249,7 @@ class MediaAssetAdminOut(BaseModel):
     original_filename: str | None = None
     source: str
     created_at: datetime
+    file_exists: bool | None = None
     assignments: list[MediaAssignmentOut] = Field(default_factory=list)
 
 

@@ -14,6 +14,8 @@ from app.core.config import get_settings
 
 ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
 ALLOWED_VIDEO_TYPES = {'video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/mpeg'}
+SUPPORTED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+SUPPORTED_VIDEO_EXTENSIONS = {'.mp4', '.mov', '.webm', '.avi', '.mpeg', '.mpg'}
 MAX_IMAGE_SIZE_BYTES = 12 * 1024 * 1024
 MAX_VIDEO_SIZE_BYTES = 120 * 1024 * 1024
 MAX_IMAGE_DIMENSION = 1920
@@ -149,6 +151,54 @@ async def upload_media(file: UploadFile) -> dict:
 
 async def upload_image(file: UploadFile) -> dict:
     return await upload_media(file)
+
+
+def inspect_existing_media(path: Path) -> dict | None:
+    """Read metadata from an existing file without modifying it.
+
+    Used by the Media Library filesystem scanner so files copied manually into
+    MEDIA_ROOT can be registered in media_assets and reused like normal uploads.
+    """
+    suffix = path.suffix.lower()
+    if suffix in SUPPORTED_IMAGE_EXTENSIONS:
+        try:
+            with Image.open(path) as image:
+                image = ImageOps.exif_transpose(image)
+                width, height = image.size
+                detected_format = (image.format or suffix.lstrip('.')).lower()
+        except Exception as exc:
+            raise ValueError(f'Cannot read image metadata: {exc}') from exc
+        return {
+            'type': 'image',
+            'width': width,
+            'height': height,
+            'format': detected_format,
+            'size_bytes': path.stat().st_size,
+        }
+
+    if suffix in SUPPORTED_VIDEO_EXTENSIONS:
+        width, height = _probe_video(str(path))
+        return {
+            'type': 'video',
+            'width': width,
+            'height': height,
+            'format': suffix.lstrip('.'),
+            'size_bytes': path.stat().st_size,
+        }
+
+    return None
+
+
+def local_asset_exists(storage_path: str | None) -> bool | None:
+    if not storage_path:
+        return None
+    root = ensure_media_root()
+    target = (root / storage_path.lstrip('/')).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError:
+        return False
+    return target.is_file()
 
 
 def delete_local_asset(storage_path: str | None) -> None:

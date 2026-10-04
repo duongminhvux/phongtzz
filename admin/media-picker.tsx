@@ -22,6 +22,7 @@ export type MediaPickerItem = {
   alt?: string | null
   sort_order?: number
   assignments?: Array<{ kind: string; owner_id: string; slot: string; label: string; sort_order: number }>
+  file_exists?: boolean | null
 }
 
 function token() {
@@ -90,6 +91,8 @@ export function MediaPicker({
   const [query, setQuery] = useState("")
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [scanMessage, setScanMessage] = useState("")
   const [error, setError] = useState("")
 
   const load = async () => {
@@ -125,6 +128,7 @@ export function MediaPicker({
   }, [assets, accept, query])
 
   const toggle = (asset: MediaPickerItem) => {
+    if (asset.file_exists === false) return
     const id = asset.id || asset.asset_id
     if (!id) return
     if (!multiple) {
@@ -139,6 +143,21 @@ export function MediaPicker({
     const result = chosen.map((id) => byId.get(id)).filter(Boolean).map((item) => asMediaItem(item as MediaPickerItem))
     onSelect(result)
     setOpen(false)
+  }
+
+  const scanFolder = async () => {
+    setScanning(true)
+    setError("")
+    setScanMessage("")
+    try {
+      const result = await request<{ imported: number; supported_files: number; skipped_existing: number; error_count: number }>("/admin/media-assets/scan", { method: "POST" })
+      setScanMessage(`Quét xong: thêm ${result.imported} media mới · ${result.skipped_existing} file đã có trong DB${result.error_count ? ` · ${result.error_count} lỗi` : ""}`)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không quét được thư mục media")
+    } finally {
+      setScanning(false)
+    }
   }
 
   const uploadFiles = async (files?: FileList | null) => {
@@ -171,9 +190,9 @@ export function MediaPicker({
       <div className="flex max-h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col gap-3 border-b p-4 md:flex-row md:items-center md:justify-between">
           <div><h2 className="text-lg font-semibold">Media Library</h2><p className="text-xs text-gray-500">Ảnh upload gần đây được ưu tiên. Một asset có thể dùng ở nhiều chỗ.</p></div>
-          <div className="flex items-center gap-2"><label className="inline-flex h-10 cursor-pointer items-center rounded-md bg-black px-4 text-sm font-medium text-white"><ImageUp size={15} className="mr-2" />{uploading ? "Đang upload..." : "Upload ảnh mới"}<input type="file" className="hidden" multiple={multiple} accept={accept === "video" ? "video/*" : accept === "image" ? "image/*" : "image/*,video/*"} disabled={uploading} onChange={(e) => { void uploadFiles(e.target.files); e.currentTarget.value = "" }} /></label><Button type="button" variant="ghost" size="icon" onClick={() => setOpen(false)}><X size={18} /></Button></div>
+          <div className="flex flex-wrap items-center gap-2"><Button type="button" variant="outline" disabled={scanning} onClick={() => void scanFolder()}><Search size={15} className="mr-2" />{scanning ? "Đang quét..." : "Quét thư mục"}</Button><label className="inline-flex h-10 cursor-pointer items-center rounded-md bg-black px-4 text-sm font-medium text-white"><ImageUp size={15} className="mr-2" />{uploading ? "Đang upload..." : "Upload ảnh mới"}<input type="file" className="hidden" multiple={multiple} accept={accept === "video" ? "video/*" : accept === "image" ? "image/*" : "image/*,video/*"} disabled={uploading} onChange={(e) => { void uploadFiles(e.target.files); e.currentTarget.value = "" }} /></label><Button type="button" variant="ghost" size="icon" onClick={() => setOpen(false)}><X size={18} /></Button></div>
         </div>
-        <div className="border-b p-4"><div className="relative"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><Input className="pl-9" placeholder="Tìm filename, vị trí đang dùng..." value={query} onChange={(e) => setQuery(e.target.value)} /></div>{error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}</div>
+        <div className="border-b p-4"><div className="relative"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><Input className="pl-9" placeholder="Tìm filename, vị trí đang dùng..." value={query} onChange={(e) => setQuery(e.target.value)} /></div>{scanMessage ? <p className="mt-2 text-sm text-green-700">{scanMessage}</p> : null}{error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}</div>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {loading ? <div className="flex min-h-48 items-center justify-center text-gray-500"><Loader2 className="mr-2 animate-spin" size={18} />Đang tải media...</div> : null}
           {!loading && !filtered.length ? <div className="flex min-h-48 items-center justify-center text-sm text-gray-500">Chưa có media phù hợp. Upload ảnh mới ở góc trên.</div> : null}
@@ -181,8 +200,9 @@ export function MediaPicker({
             {filtered.map((asset) => {
               const id = asset.id || asset.asset_id || ""
               const active = chosen.includes(id)
-              return <button type="button" key={id || asset.url} onClick={() => toggle(asset)} className={`overflow-hidden rounded-xl border text-left transition ${active ? "border-black ring-2 ring-black/20" : "border-gray-200 hover:border-gray-400"}`}>
-                <div className="relative aspect-[3/2] bg-gray-100">{asset.type === "video" ? <video src={displayUrl(asset)} muted className="h-full w-full object-cover" /> : <img src={displayUrl(asset)} alt={asset.original_filename || "media"} className="h-full w-full object-cover" />}{active ? <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black text-white"><Check size={15} /></span> : null}<span className={`absolute left-2 top-2 rounded-full px-2 py-1 text-[9px] font-medium ${asset.source === "local" ? "bg-green-600 text-white" : "bg-white/90 text-gray-700"}`}>{asset.source === "local" ? "UPLOADED" : (asset.source || "MEDIA").toUpperCase()}</span></div>
+              const missing = asset.file_exists === false
+              return <button type="button" key={id || asset.url} disabled={missing} onClick={() => toggle(asset)} className={`overflow-hidden rounded-xl border text-left transition ${missing ? "cursor-not-allowed border-red-200 opacity-70" : active ? "border-black ring-2 ring-black/20" : "border-gray-200 hover:border-gray-400"}`}>
+                <div className="relative aspect-[3/2] bg-gray-100">{missing ? <div className="flex h-full items-center justify-center px-3 text-center text-xs font-medium text-red-600">File không còn trên ổ đĩa</div> : asset.type === "video" ? <video src={displayUrl(asset)} muted className="h-full w-full object-cover" /> : <img src={displayUrl(asset)} alt={asset.original_filename || "media"} className="h-full w-full object-cover" />}{active && !missing ? <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black text-white"><Check size={15} /></span> : null}<span className={`absolute left-2 top-2 rounded-full px-2 py-1 text-[9px] font-medium ${missing ? "bg-red-600 text-white" : asset.source === "local" ? "bg-green-600 text-white" : "bg-white/90 text-gray-700"}`}>{missing ? "MISSING" : asset.source === "local" ? "UPLOADED" : (asset.source || "MEDIA").toUpperCase()}</span></div>
                 <div className="p-2"><p className="truncate text-xs font-medium">{asset.original_filename || asset.storage_path || "Media"}</p><p className="mt-1 truncate text-[10px] text-gray-500">{asset.width && asset.height ? `${asset.width}×${asset.height}` : asset.type}</p><p className="mt-1 line-clamp-2 min-h-7 text-[9px] text-blue-600">{asset.assignments?.length ? asset.assignments.map((x) => x.label).join(" · ") : "Chưa được gán"}</p></div>
               </button>
             })}

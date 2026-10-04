@@ -429,3 +429,16 @@ DB giữ metadata/assignment; filesystem giữ binary thật.
 ## Notes build
 
 Landing dùng npm lockfile (`npm ci`) và Admin dùng pnpm lockfile (`pnpm install --frozen-lockfile`) trong Docker build. Repo không commit `node_modules`, `.next`, `dist`, runtime uploads hay secrets.
+
+## Quét media có sẵn trên máy
+
+Media Library có nút **Quét ảnh trên máy**. Backend quét recursive thư mục bind mount `./data/uploads`, tự tạo record `media_assets` cho các file ảnh/video được copy thủ công nhưng chưa có trong DB, và không tạo duplicate nếu `storage_path` đã tồn tại. File hidden, `.gitkeep`, file tạm và định dạng không hỗ trợ được bỏ qua.
+
+Có thể copy ảnh vào bất kỳ thư mục con nào, ví dụ:
+
+```text
+data/uploads/manual/banner-home.jpg
+data/uploads/rooms/room-a.webp
+```
+
+Sau đó vào Admin → Media Library → **Quét ảnh trên máy**. Asset import có `source=imported` và dùng/gán lại giống ảnh upload qua Admin. Nếu DB còn asset nhưng file vật lý đã bị xóa, Media Library hiển thị trạng thái **Missing file** thay vì tự xóa record DB.

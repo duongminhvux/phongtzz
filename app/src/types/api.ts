@@ -1,3 +1,11 @@
+export type LandingMediaDisplay = {
+  aspectRatio?: '3:2' | '1:1' | '4:5' | '16:9'
+  widthPercent?: number
+  align?: 'left' | 'center' | 'right'
+  cropX?: number
+  cropY?: number
+}
+
 export type MediaItem = {
   asset_id?: string | null
   url: string

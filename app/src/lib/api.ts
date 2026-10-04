@@ -4,10 +4,18 @@ import type { BookingRequestPayload, PublicSite } from '../types/api'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const hasBody = options?.body !== undefined && options?.body !== null
+  const headers = new Headers(options?.headers || {})
+  // Do not attach application/json to GET/HEAD requests. That header turns a
+  // simple cross-origin GET into a CORS preflight on Safari and some WebViews.
+  if (hasBody && !(options?.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+
   const response = await fetch(`${API_URL}${path}`, {
-    cache: options?.cache ?? 'no-store',
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     ...options,
+    cache: options?.cache ?? 'no-store',
+    headers,
   })
 
   if (!response.ok) {

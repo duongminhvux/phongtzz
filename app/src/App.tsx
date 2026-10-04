@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Routes, Route } from 'react-router'
 import Home from './pages/Home'
 import Rooms from './pages/Rooms'
@@ -10,6 +10,7 @@ import Footer from './components/Footer'
 import SeoManager from './components/SeoManager'
 import FloatingContact from './components/FloatingContact'
 import { getPublicSite } from './lib/api'
+import { ensureRemoteFonts, normalizeFontStack } from './lib/fonts'
 import type { PublicSite } from './types/api'
 
 export default function App() {
@@ -17,52 +18,46 @@ export default function App() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    getPublicSite()
-      .then((data) => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const data = await getPublicSite()
+        if (cancelled) return
         setSite(data)
-        const theme = data.landing.theme || {}
-        const fontsToLoad = new Set<string>()
-        const extractFontName = (fontFamily: string) => {
-          if (!fontFamily) return null
-          const match = fontFamily.match(/^['"]?([^,'"]+)['"]?/)
-          return match ? match[1].trim() : null
-        }
-        const isSystemFont = (name: string) => /^(Inter|System UI|Arial|Georgia|Verdana|Times New Roman|sans-serif|serif)$/i.test(name) || !name
-        const bodyFont = extractFontName(theme.fontFamily)
-        const headingFont = extractFontName(theme.headingFont)
-        if (bodyFont && !isSystemFont(bodyFont)) fontsToLoad.add(bodyFont)
-        if (headingFont && !isSystemFont(headingFont)) fontsToLoad.add(headingFont)
-        if (fontsToLoad.size > 0) {
-          const linkId = 'dynamic-google-fonts'
-          let link = document.getElementById(linkId) as HTMLLinkElement | null
-          if (!link) {
-            link = document.createElement('link')
-            link.id = linkId
-            link.rel = 'stylesheet'
-            document.head.appendChild(link)
-          }
-          const families = Array.from(fontsToLoad).map((f) => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700`).join('&')
-          link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`
-        }
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Không tải được dữ liệu website'))
+        setError('')
+      } catch (err) {
+        if (cancelled) return
+        setError(err instanceof Error ? err.message : 'Không tải được dữ liệu website')
+      }
+    }
+    void load()
+    return () => { cancelled = true }
   }, [])
 
+  const theme = site?.landing.theme || {}
+  const bodyFont = normalizeFontStack(theme.fontFamily, "'Inter', Arial, sans-serif")
+  const headingFont = normalizeFontStack(theme.headingFont, "'Bricolage Grotesque', Arial, sans-serif")
+
+  useEffect(() => {
+    if (!site) return
+    ensureRemoteFonts([theme.fontFamily, theme.headingFont])
+  }, [site, theme.fontFamily, theme.headingFont])
+
+  const style = useMemo(() => ({
+    '--body-font': bodyFont,
+    '--heading-font': headingFont,
+    '--primary-color': theme.primaryColor || '#111111',
+    '--page-bg': theme.backgroundColor || '#f7f5f2',
+    fontFamily: bodyFont,
+  } as CSSProperties), [bodyFont, headingFont, theme.primaryColor, theme.backgroundColor])
+
   if (error) {
-    return <main className="flex min-h-screen items-center justify-center bg-[#f7f5f2] p-6 text-center"><div><h1 className="text-2xl font-semibold">Không tải được website</h1><p className="mt-3 text-sm text-black/60">{error}</p></div></main>
+    return <main className="flex min-h-screen items-center justify-center bg-[#f7f5f2] p-6 text-center"><div><h1 className="text-2xl font-semibold">Không tải được website</h1><p className="mt-3 text-sm text-black/60">{error}</p><button type="button" onClick={() => window.location.reload()} className="mt-5 rounded-full bg-black px-5 py-2 text-sm text-white">Tải lại</button></div></main>
   }
 
   if (!site) {
     return <main className="flex min-h-screen items-center justify-center bg-[#f7f5f2] text-sm text-black/50">Đang tải dữ liệu...</main>
   }
-
-  const theme = site.landing.theme || {}
-  const style = {
-    '--body-font': theme.fontFamily || 'Inter, sans-serif',
-    '--heading-font': theme.headingFont || 'Georgia, serif',
-    '--primary-color': theme.primaryColor || '#111111',
-    '--page-bg': theme.backgroundColor || '#f7f5f2',
-  } as CSSProperties
 
   return (
     <div style={style}>

@@ -68,7 +68,7 @@ def blank_seed() -> dict:
             },
             'theme': {
                 'fontFamily': 'Inter, sans-serif',
-                'headingFont': 'Georgia, serif',
+                'headingFont': 'Bricolage Grotesque, sans-serif',
                 'primaryColor': '#111111',
                 'backgroundColor': '#f7f5f2',
             },

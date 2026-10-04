@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,19 +11,15 @@
 
   body {
     margin: 0;
-    font-family: var(--body-font, 'Inter', sans-serif);
+    font-family: var(--body-font, 'Inter', Arial, sans-serif);
     background-color: var(--page-bg, #f7f5f2);
     color: #111111;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-serif {
-    font-family: var(--heading-font, 'Bricolage Grotesque', sans-serif);
-  }
-
-  .font-sans {
-    font-family: var(--body-font, 'Inter', sans-serif);
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font, 'Bricolage Grotesque', Arial, sans-serif);
   }
 }
 
@@ -40,4 +36,25 @@
     background-color: #f7f5f2;
     border: 1px solid transparent;
   }
+
+  .landing-media-frame {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .landing-media-frame {
+      width: var(--landing-media-width, 100%);
+    }
+  }
+}
+
+/* Tailwind's built-in font-serif/font-sans utilities are emitted after the
+   base layer, so they used to override the DB theme variables. Keep these
+   aliases in the final CSS layer so Admin font changes are actually visible. */
+.font-serif {
+  font-family: var(--heading-font, 'Bricolage Grotesque', Arial, sans-serif) !important;
+}
+
+.font-sans {
+  font-family: var(--body-font, 'Inter', Arial, sans-serif) !important;
 }

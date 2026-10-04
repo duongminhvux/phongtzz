@@ -1,5 +1,8 @@
 from functools import lru_cache
 from pathlib import Path
+import ipaddress
+import re
+from urllib.parse import urlparse
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -8,6 +11,45 @@ def _split_csv(value: str | None) -> list[str]:
     if not value:
         return []
     return [item.strip().rstrip('/') for item in value.split(',') if item.strip()]
+
+
+def _origin_variants(origin: str | None) -> list[str]:
+    """Return explicit browser-origin variants for the configured site.
+
+    Visitors can arrive through http/https and apex/www depending on browser
+    history, HSTS and Cloudflare settings. CORS is based on that page origin,
+    not on the visitor device, so accept the safe companion variants too.
+    """
+    if not origin:
+        return []
+    normalized = origin.strip().rstrip('/')
+    parsed = urlparse(normalized)
+    if parsed.scheme not in ('http', 'https') or not parsed.hostname:
+        return [normalized] if normalized else []
+
+    host = parsed.hostname
+    port = f':{parsed.port}' if parsed.port else ''
+    hosts = [host]
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        if host != 'localhost':
+            if host.startswith('www.'):
+                hosts.append(host[4:])
+            elif host.count('.') >= 1:
+                hosts.append(f'www.{host}')
+
+    schemes = [parsed.scheme]
+    if host not in ('localhost', '127.0.0.1'):
+        schemes = ['https', 'http']
+
+    values: list[str] = []
+    for scheme in schemes:
+        for candidate_host in hosts:
+            candidate = f'{scheme}://{candidate_host}{port}'
+            if candidate not in values:
+                values.append(candidate)
+    return values
 
 
 class Settings(BaseSettings):
@@ -24,6 +66,7 @@ class Settings(BaseSettings):
     frontend_url: str = 'http://localhost:5173'
     admin_url: str = 'http://localhost:3000'
     cors_extra_origins: str | None = None
+    cors_origin_regex_override: str | None = None
 
     admin_email: str = 'admin@riversidehaven.local'
     admin_password: str = 'admin123456'
@@ -58,24 +101,48 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        origins = [
-            self.frontend_url,
-            self.admin_url,
+        origins: list[str] = []
+        for configured in (self.frontend_url, self.admin_url):
+            origins.extend(_origin_variants(configured))
+        origins.extend([
             'http://localhost:5173',
             'http://localhost:3000',
             'http://127.0.0.1:5173',
             'http://127.0.0.1:3000',
-        ]
-        origins.extend(_split_csv(self.cors_extra_origins))
+        ])
+        for extra in _split_csv(self.cors_extra_origins):
+            origins.extend(_origin_variants(extra))
 
         cleaned: list[str] = []
         for origin in origins:
-            if not origin:
-                continue
             normalized = origin.rstrip('/')
-            if normalized not in cleaned:
+            if normalized and normalized not in cleaned:
                 cleaned.append(normalized)
         return cleaned
+
+    @property
+    def cors_origin_regex(self) -> str | None:
+        if self.cors_origin_regex_override:
+            return self.cors_origin_regex_override
+
+        parsed = urlparse(self.frontend_url.rstrip('/'))
+        host = parsed.hostname
+        if not host:
+            return r'^https?://(?:localhost|127\.0\.0\.1)(?::\d+)?$'
+        try:
+            ipaddress.ip_address(host)
+            return r'^https?://(?:localhost|127\.0\.0\.1)(?::\d+)?$'
+        except ValueError:
+            pass
+        if host == 'localhost':
+            return r'^https?://(?:localhost|127\.0\.0\.1)(?::\d+)?$'
+
+        # The public frontend is the trust root. Allow its apex/www/subdomains so
+        # browsers that arrive through www, admin, or another same-site hostname
+        # receive the same CORS behavior on every device.
+        base = host[4:] if host.startswith('www.') else host
+        escaped = re.escape(base)
+        return rf'^https?://(?:[a-zA-Z0-9-]+\.)*{escaped}(?::\d+)?$'
 
 
 @lru_cache

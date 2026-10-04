@@ -1,7 +1,8 @@
-import { useEffect, useMemo, type CSSProperties } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Bed, Check, MapPin, Star, Users } from 'lucide-react'
-import { asMedia, mediaAspect, mediaUrl, normalizeMediaList } from '../lib/media'
+import { asMedia, mediaUrl, normalizeMediaList } from '../lib/media'
+import { mediaFrameStyle, mediaObjectStyle } from '../lib/landingDisplay'
 import type { LandingPage, LandingSection, Room } from '../types/api'
 
 const formatPrice = (price: number | null | undefined, labels: Record<string, any>) => {
@@ -18,7 +19,7 @@ export default function Home({ landing, rooms }: { landing: LandingPage; rooms: 
   const roomLabels = (landing.roomsPage || {}) as Record<string, any>
 
   return (
-    <main style={{ backgroundColor: theme.backgroundColor || '#f7f5f2', fontFamily: theme.fontFamily || undefined, '--body-font': theme.fontFamily, '--heading-font': theme.headingFont } as CSSProperties}>
+    <main style={{ backgroundColor: theme.backgroundColor || '#f7f5f2' }}>
       {sections.map((section) => <LandingSectionRenderer key={section.id} section={section} rooms={rooms} roomLabels={roomLabels} />)}
     </main>
   )
@@ -42,14 +43,15 @@ function LandingSectionRenderer({ section, rooms, roomLabels }: { section: Landi
 function HeroSection({ section }: { section: LandingSection }) {
   const video = asMedia(section.video, 'video')
   const image = asMedia(section.image)
+  const objectStyle = mediaObjectStyle(section.mediaDisplay)
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
       {video?.url ? (
-        <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover">
+        <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" style={objectStyle}>
           <source src={video.url} type="video/mp4" />
         </video>
       ) : image?.url ? (
-        <img src={image.url} alt={section.title} className="absolute inset-0 h-full w-full object-cover" />
+        <img src={image.url} alt={section.title} className="absolute inset-0 h-full w-full object-cover" style={objectStyle} />
       ) : null}
       <div className="absolute inset-0 bg-black/35" />
       <div className="relative z-10 max-w-4xl text-center text-white">
@@ -71,8 +73,8 @@ function WelcomeSection({ section }: { section: LandingSection }) {
     <section className="py-24 lg:py-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-24 items-center">
         <div>
-          {images[0] ? <div className="overflow-hidden" style={{ borderRadius: 24, aspectRatio: '3/2' }}>
-            <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" />
+          {images[0] ? <div className="landing-media-frame overflow-hidden" style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
+            <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" style={mediaObjectStyle(section.mediaDisplay)} />
           </div> : null}
         </div>
         <div>
@@ -100,7 +102,7 @@ function ExperiencesSection({ section }: { section: LandingSection }) {
             const image = asMedia(item.image)
             return (
               <article key={`${item.title}-${idx}`} className="group">
-                {image?.url ? <div className="overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: mediaAspect(image) }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" /></div> : null}
+                {image?.url ? <div className="landing-media-frame overflow-hidden mb-5" style={{ ...mediaFrameStyle(item.imageDisplay), borderRadius: 22 }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" style={mediaObjectStyle(item.imageDisplay)} /></div> : null}
                 <h3 className="font-serif text-2xl">{item.title}</h3>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{item.description}</p>
               </article>
@@ -131,24 +133,24 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {visibleRooms.map((room) => (
               <Link key={room.id} to={`/rooms?room=${room.slug}`} className="group block">
-                <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: mediaAspect(room.images?.[0]) }}>
+                <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: '3 / 2' }}>
                   {mediaUrl(room.images?.[0]) ? (
                     <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-[#eee9e2] text-sm text-black/40">{labels.emptyImageText || ""}</div>
+                    <div className="flex h-full w-full items-center justify-center bg-[#eee9e2] text-sm text-black/40">{labels.emptyImageText || ''}</div>
                   )}
                   <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium backdrop-blur">{formatPrice(room.price, labels)}</span>
                 </div>
                 <h3 className="font-serif text-2xl">{room.name}</h3>
                 <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-black/50">
-                  <span className="flex items-center gap-1"><Users size={14} /> {room.capacity || 1} {labels.guestsSuffix || ""}</span>
-                  <span className="flex items-center gap-1"><Bed size={14} /> {room.bed_type || `${room.beds || 1} ${labels.bedFallback || ""}`.trim()}</span>
+                  <span className="flex items-center gap-1"><Users size={14} /> {room.capacity || 1} {labels.guestsSuffix || ''}</span>
+                  <span className="flex items-center gap-1"><Bed size={14} /> {room.bed_type || `${room.beds || 1} ${labels.bedFallback || ''}`.trim()}</span>
                 </div>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{room.description}</p>
               </Link>
             ))}
           </div>
-        ) : <p className="rounded-3xl bg-[#f7f5f2] p-8 text-center text-sm text-black/55">{labels.noRoomsText || ""}</p>}
+        ) : <p className="rounded-3xl bg-[#f7f5f2] p-8 text-center text-sm text-black/55">{labels.noRoomsText || ''}</p>}
       </div>
     </section>
   )
@@ -199,8 +201,8 @@ function GallerySection({ section }: { section: LandingSection }) {
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
-        {image ? <div className="mx-auto max-w-4xl overflow-hidden" style={{ borderRadius: 24, aspectRatio: '3/2' }}>
-          <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+        {image ? <div className="landing-media-frame overflow-hidden" style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
+          <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" style={mediaObjectStyle(section.mediaDisplay)} />
         </div> : null}
       </div>
     </section>
@@ -212,7 +214,7 @@ function BannerSection({ section }: { section: LandingSection }) {
   return (
     <section className="px-6 py-20">
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-black px-8 py-20 text-white md:px-16">
-        {image?.url ? <img src={image.url} alt={section.title} className="absolute inset-0 h-full w-full object-cover opacity-45" /> : null}
+        {image?.url ? <img src={image.url} alt={section.title} className="absolute inset-0 h-full w-full object-cover opacity-45" style={mediaObjectStyle(section.mediaDisplay)} /> : null}
         <div className="relative z-10 max-w-2xl">
           <h2 className="font-serif" style={{ fontSize: 'clamp(32px, 5vw, 66px)', lineHeight: 1.05 }}>{section.title}</h2>
           <p className="mt-4 text-white/80" style={{ lineHeight: '28px' }}>{section.description || section.subtitle}</p>

@@ -19,7 +19,7 @@
     },
     "theme": {
       "fontFamily": "Inter, Arial, sans-serif",
-      "headingFont": "Georgia, serif",
+      "headingFont": "Bricolage Grotesque, sans-serif",
       "primaryColor": "#111111",
       "backgroundColor": "#f7f5f2"
     },
@@ -88,7 +88,14 @@
           "sort_order": 0,
           "alt": ""
         },
-        "image": null
+        "image": null,
+        "mediaDisplay": {
+          "aspectRatio": "3:2",
+          "widthPercent": 100,
+          "align": "center",
+          "cropX": 50,
+          "cropY": 50
+        }
       },
       {
         "id": "welcome-main",
@@ -108,7 +115,14 @@
             "sort_order": 0,
             "alt": ""
           }
-        ]
+        ],
+        "mediaDisplay": {
+          "aspectRatio": "3:2",
+          "widthPercent": 100,
+          "align": "center",
+          "cropX": 50,
+          "cropY": 50
+        }
       },
       {
         "id": "experiences-main",
@@ -126,6 +140,13 @@
               "type": "image",
               "sort_order": 0,
               "alt": ""
+            },
+            "imageDisplay": {
+              "aspectRatio": "3:2",
+              "widthPercent": 100,
+              "align": "center",
+              "cropX": 50,
+              "cropY": 50
             }
           },
           {
@@ -136,6 +157,13 @@
               "type": "image",
               "sort_order": 0,
               "alt": ""
+            },
+            "imageDisplay": {
+              "aspectRatio": "3:2",
+              "widthPercent": 100,
+              "align": "center",
+              "cropX": 50,
+              "cropY": 50
             }
           },
           {
@@ -146,6 +174,13 @@
               "type": "image",
               "sort_order": 0,
               "alt": ""
+            },
+            "imageDisplay": {
+              "aspectRatio": "3:2",
+              "widthPercent": 100,
+              "align": "center",
+              "cropX": 50,
+              "cropY": 50
             }
           }
         ]
@@ -231,7 +266,14 @@
             "sort_order": 0,
             "alt": ""
           }
-        ]
+        ],
+        "mediaDisplay": {
+          "aspectRatio": "3:2",
+          "widthPercent": 100,
+          "align": "center",
+          "cropX": 50,
+          "cropY": 50
+        }
       },
       {
         "id": "cta-main",

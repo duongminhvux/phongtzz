@@ -442,3 +442,13 @@ data/uploads/rooms/room-a.webp
 ```
 
 Sau đó vào Admin → Media Library → **Quét ảnh trên máy**. Asset import có `source=imported` và dùng/gán lại giống ảnh upload qua Admin. Nếu DB còn asset nhưng file vật lý đã bị xóa, Media Library hiển thị trạng thái **Missing file** thay vì tự xóa record DB.
+
+## Font, Safari/CORS và Display Settings cho ảnh Landing
+
+- Font nội dung/tiêu đề được lưu trong `landing.theme` và public FE áp dụng bằng CSS variables. `font-serif`/`font-sans` của Tailwind được override để không đè font do Admin chọn.
+- `Bricolage Grotesque` và `Inter` được preload; các Google Font khác admin nhập sẽ được nạp động khi public site tải cấu hình từ DB.
+- Public `GET /api/site` không còn tự gắn `Content-Type: application/json`, tránh tạo CORS preflight không cần thiết trên Safari/WebView.
+- Backend CORS nhận cả http/https và www/non-www của `PUBLIC_FRONTEND_URL`, đồng thời cho phép subdomain cùng site thông qua regex. Vẫn nên bật Cloudflare `Always Use HTTPS` ở production.
+- Ảnh Landing (Welcome, Gallery, Experience) có `mediaDisplay`: tỉ lệ `3:2 / 1:1 / 4:5 / 16:9`, width 40–100%, align trái/giữa/phải và crop X/Y. Mobile luôn full width.
+- Hero/Banner là background full khung nên chỉ expose crop X/Y. Room và Tour card/gallery vẫn cố định 3:2.
+- Các thiết lập trên nằm trong JSON landing hiện tại, không cần migration schema và không ảnh hưởng DB/media cũ.

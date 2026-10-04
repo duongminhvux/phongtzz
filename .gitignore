@@ -32,3 +32,5 @@ __pycache__
 data/uploads/*
 !data/uploads/.gitkeep
 
+backup/*
+

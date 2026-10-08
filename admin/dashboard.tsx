@@ -226,7 +226,7 @@ export default function Dashboard() {
     const response = await fetch(`${API_URL}${path}`, {
       cache: options?.cache ?? "no-store",
       ...options,
-      headers: { ...(options?.body instanceof FormData ? {} : { "Content-Type": "application/json" }), ...authHeaders(), ...(options?.headers || {}) },
+      headers: { ...((options?.body != null && !(options.body instanceof FormData)) ? { "Content-Type": "application/json" } : {}), ...authHeaders(), ...(options?.headers || {}) },
     })
     if (!response.ok) {
       let detail = response.statusText
@@ -395,17 +395,13 @@ export default function Dashboard() {
         if (role === "hero") media = media.filter((entry) => entry.role !== "hero")
         const desiredRole = role === "hero" ? "hero" : "gallery"
         if (!media.some((entry) => (entry.asset_id || entry.url) === (item.asset_id || item.url) && (entry.role || "gallery") === desiredRole)) media.push({ ...item, role: desiredRole, sort_order: media.length })
-        const saved = await api<MediaTourTarget>(`/admin/tours/${tourId}`, { method: "PATCH", body: JSON.stringify({ media: media.map((entry, index) => ({ ...entry, sort_order: index })) }) })
+        const saved = await api<MediaTourTarget>(`/admin/tours/${tourId}/update`, { method: "POST", body: JSON.stringify({ media: media.map((entry, index) => ({ ...entry, sort_order: index })) }) })
         setMediaTours((prev) => prev.map((entry) => entry.id === saved.id ? saved : entry))
-      } else if (target === "tour-page:hero" || target === "tour-page:gallery") {
+      } else if (target === "tour-page:hero" || target === "tour-page:showcase") {
         const current = await api<{ value: Record<string, any> }>("/admin/tour-page")
         const value = { ...(current.value || {}) }
         if (target.endsWith("hero")) value.heroImage = item
-        else {
-          const gallery = [...(value.gallery || [])]
-          if (!gallery.some((entry: MediaItem) => (entry.asset_id || entry.url) === (item.asset_id || item.url))) gallery.push(item)
-          value.gallery = gallery.map((entry: MediaItem, index: number) => ({ ...entry, sort_order: index }))
-        }
+        else { value.showcaseImage = item; value.gallery = [] }
         await api("/admin/tour-page", { method: "PUT", body: JSON.stringify({ value }) })
       } else {
         return
@@ -538,7 +534,7 @@ function MediaLibrary({ assets, rooms, landing, tours, refresh, deleteAsset, qui
     ...landingTargets,
     ...rooms.map((room) => ({ value: `room:${room.id}`, label: `Room · ${room.name} · Append gallery` })),
     { value: "tour-page:hero", label: "Tours page · Hero" },
-    { value: "tour-page:gallery", label: "Tours page · Gallery" },
+    { value: "tour-page:showcase", label: "Tours page · Showcase" },
     ...tours.flatMap((tour) => [{ value: `tour:${tour.id}:hero`, label: `Tour · ${tour.name} · Hero` }, { value: `tour:${tour.id}:gallery`, label: `Tour · ${tour.name} · Gallery` }]),
   ]
 

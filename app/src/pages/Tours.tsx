@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Check, Clock, ShieldCheck, Star } from 'lucide-react'
 import { mediaUrl } from '../lib/media'
+import { mediaFrameClassName, mediaFrameStyle, mediaObjectStyle } from '../lib/landingDisplay'
 import type { Tour, TourAddon, TourPage } from '../types/api'
 
 function priceLabel(value: number, currency: string) {
@@ -11,6 +12,7 @@ function priceLabel(value: number, currency: string) {
 export default function Tours({ page, tours, addons }: { page: TourPage; tours: Tour[]; addons: TourAddon[] }) {
   useEffect(() => { window.scrollTo(0, 0) }, [])
   const hero = mediaUrl(page.heroImage)
+  const showcase = page.showcaseImage || (page.gallery || [])[0] || null
   const activeTours = [...tours].sort((a, b) => a.sort_order - b.sort_order)
 
   return (
@@ -72,7 +74,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
 
       <section className="px-6 py-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.whyTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{(page.whyItems || []).map((item, index) => <div key={item.title} className="rounded-[26px] bg-white p-7"><div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">{index === 0 ? <ShieldCheck size={20} /> : index === 1 ? <Clock size={20} /> : <Star size={20} />}</div><h3 className="font-serif text-2xl">{item.title}</h3><p className="mt-3 text-sm leading-6 text-black/55">{item.description}</p></div>)}</div></div></section>
 
-      {(page.gallery || []).length ? <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.galleryTitle}</h2><div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">{(page.gallery || []).map((item, index) => <img key={item.asset_id || `${item.url}-${index}`} src={item.url} alt={item.alt || 'Ha Giang Loop'} className={`aspect-[3/2] w-full rounded-2xl object-cover ${index === 0 ? 'md:col-span-2' : ''}`} />)}</div></div></section> : null}
+      {showcase ? <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.galleryTitle}</h2><div className="mt-10"><div className={mediaFrameClassName(page.showcaseDisplay, 'overflow-hidden')} style={{ ...mediaFrameStyle(page.showcaseDisplay), borderRadius: 24 }}><img src={mediaUrl(showcase)} alt={showcase.alt || page.galleryTitle || 'Ha Giang Loop'} className="h-full w-full object-cover" style={mediaObjectStyle(page.showcaseDisplay)} /></div></div></div></section> : null}
 
       <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.reviewsTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-2">{(page.reviews || []).map((review) => <blockquote key={`${review.name}-${review.country}`} className="rounded-[26px] bg-white p-7"><div className="flex gap-1">{Array.from({ length: review.rating || 5 }).map((_, i) => <Star key={i} size={15} fill="currentColor" />)}</div><p className="mt-5 font-serif text-2xl leading-9">“{review.text}”</p><footer className="mt-5 text-sm text-black/50">{review.name}{review.country ? ` · ${review.country}` : ''}</footer></blockquote>)}</div></div></section>
 

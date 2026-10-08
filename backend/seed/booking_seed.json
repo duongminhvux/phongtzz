@@ -497,32 +497,7 @@
       }
     ],
     "galleryTitle": "Life on the Loop",
-    "gallery": [
-      {
-        "url": "/uploads/seed/gallery-guest-1.jpg",
-        "type": "image",
-        "sort_order": 0,
-        "alt": "Travellers on the Ha Giang Loop"
-      },
-      {
-        "url": "/uploads/seed/gallery-landscape-1.jpg",
-        "type": "image",
-        "sort_order": 1,
-        "alt": "Ha Giang mountain road"
-      },
-      {
-        "url": "/uploads/seed/gallery-guest-2.jpg",
-        "type": "image",
-        "sort_order": 2,
-        "alt": "Guests in Ha Giang"
-      },
-      {
-        "url": "/uploads/seed/food-dining.jpg",
-        "type": "image",
-        "sort_order": 3,
-        "alt": "Local dinner"
-      }
-    ],
+    "gallery": [],
     "reviewsTitle": "Guest Stories",
     "reviews": [
       {
@@ -563,7 +538,23 @@
     ],
     "bookingTitle": "Add a Ha Giang Loop to your stay",
     "bookingDescription": "Choose a tour package, then add it to the same booking request as your Riverside Haven room.",
-    "bookingButtonText": "Add Tour to Booking"
+    "bookingButtonText": "Add Tour to Booking",
+    "showcaseImage": {
+      "url": "/uploads/seed/gallery-guest-1.jpg",
+      "type": "image",
+      "sort_order": 0,
+      "alt": "Travellers on the Ha Giang Loop"
+    },
+    "showcaseDisplay": {
+      "aspectRatio": "3:2",
+      "widthPercent": 120,
+      "align": "center",
+      "cropX": 50,
+      "cropY": 50,
+      "displayMode": "wide",
+      "mobileFullWidth": true,
+      "tabletFullWidth": true
+    }
   },
   "tours": [
     {

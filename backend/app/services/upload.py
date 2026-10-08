@@ -16,7 +16,7 @@ ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
 ALLOWED_VIDEO_TYPES = {'video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/mpeg'}
 SUPPORTED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
 SUPPORTED_VIDEO_EXTENSIONS = {'.mp4', '.mov', '.webm', '.avi', '.mpeg', '.mpg'}
-MAX_IMAGE_SIZE_BYTES = 12 * 1024 * 1024
+MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024
 MAX_VIDEO_SIZE_BYTES = 120 * 1024 * 1024
 MAX_IMAGE_DIMENSION = 1920
 

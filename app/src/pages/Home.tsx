@@ -72,8 +72,8 @@ function WelcomeSection({ section }: { section: LandingSection }) {
   const display = normalizeLandingMediaDisplay(section.mediaDisplay)
   const showcase = display.displayMode !== 'container'
   return (
-    <section className="py-14 lg:py-14 px-6">
-      <div className={`max-w-7xl mx-auto grid grid-cols-1 gap-14 items-center ${showcase ? 'lg:gap-14' : 'lg:grid-cols-2 lg:gap-24'}`}>
+    <section className="py-8 lg:py-8 px-6">
+      <div className={`max-w-7xl mx-auto grid grid-cols-1 gap-14 items-center ${showcase ? 'lg:gap-12' : 'lg:grid-cols-2 lg:gap-12'}`}>
         <div className={showcase ? 'w-full' : ''}>
           {images[0] ? <div className={mediaFrameClassName(section.mediaDisplay, 'overflow-hidden')} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
             <img src={images[0].url} alt={images[0].alt || section.title} className="h-full w-full object-cover" style={mediaObjectStyle(section.mediaDisplay)} />
@@ -93,7 +93,7 @@ function WelcomeSection({ section }: { section: LandingSection }) {
 
 function ExperiencesSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-14 px-6 bg-white">
+    <section className="py-8 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="mb-14 max-w-2xl">
           <h2 className="font-serif" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
@@ -104,7 +104,7 @@ function ExperiencesSection({ section }: { section: LandingSection }) {
             const image = asMedia(item.image)
             return (
               <article key={`${item.title}-${idx}`} className="group">
-                {image?.url ? <div className={mediaFrameClassName(item.imageDisplay, "overflow-hidden mb-5")} style={{ ...mediaFrameStyle(item.imageDisplay), borderRadius: 22 }}><img src={image.url} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" style={mediaObjectStyle(item.imageDisplay)} /></div> : null}
+                {image?.url ? <div className={mediaFrameClassName(item.imageDisplay, "overflow-hidden mb-5")} style={{ ...mediaFrameStyle(item.imageDisplay), borderRadius: 22 }}><img src={image.url} alt={item.title} className="h-full w-full object-cover  " style={mediaObjectStyle(item.imageDisplay)} /></div> : null}
                 <h3 className="font-serif text-2xl">{item.title}</h3>
                 <p className="mt-3 font-sans text-sm text-black/60" style={{ lineHeight: '24px' }}>{item.description}</p>
               </article>
@@ -120,7 +120,7 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
   const selectedIds = Array.isArray(section.roomIds) ? section.roomIds : []
   const visibleRooms = (selectedIds.length ? rooms.filter((room) => selectedIds.includes(room.id)) : rooms).slice(0, Number(section.limit || 3))
   return (
-    <section className="py-14 lg:py-14 px-6 bg-white">
+    <section className="py-8 lg:py-8 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-14">
           <div>
@@ -137,7 +137,7 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
               <Link key={room.id} to={`/rooms?room=${room.slug}`} className="group block">
                 <div className="relative overflow-hidden mb-5" style={{ borderRadius: 22, aspectRatio: '3 / 2' }}>
                   {mediaUrl(room.images?.[0]) ? (
-                    <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={mediaUrl(room.images?.[0])} alt={room.name} className="h-full w-full object-cover " />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-[#eee9e2] text-sm text-black/40">{labels.emptyImageText || ''}</div>
                   )}
@@ -160,7 +160,7 @@ function RoomsPreviewSection({ section, rooms, labels }: { section: LandingSecti
 
 function AmenitiesSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-14 px-6">
+    <section className="py-8 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif text-center mb-14" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -179,7 +179,7 @@ function AmenitiesSection({ section }: { section: LandingSection }) {
 
 function TestimonialsSection({ section }: { section: LandingSection }) {
   return (
-    <section className="py-14 px-6 bg-white">
+    <section className="py-8 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif text-center mb-14" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -200,11 +200,11 @@ function TestimonialsSection({ section }: { section: LandingSection }) {
 function GallerySection({ section }: { section: LandingSection }) {
   const image = normalizeMediaList(section.images)[0]
   return (
-    <section className="py-14 px-6">
+    <section className="py-8 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif mb-10" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
         {image ? <div className={mediaFrameClassName(section.mediaDisplay, "overflow-hidden")} style={{ ...mediaFrameStyle(section.mediaDisplay), borderRadius: 24 }}>
-          <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" style={mediaObjectStyle(section.mediaDisplay)} />
+          <img src={image.url} alt={image.alt || section.title} className="h-full w-full object-cover" style={mediaObjectStyle(section.mediaDisplay)} />
         </div> : null}
       </div>
     </section>
@@ -214,7 +214,7 @@ function GallerySection({ section }: { section: LandingSection }) {
 function BannerSection({ section }: { section: LandingSection }) {
   const image = asMedia(section.image)
   return (
-    <section className="px-6 py-14">
+    <section className="px-6 py-8">
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-black px-8 py-20 text-white md:px-16">
         {image?.url ? <img src={image.url} alt={section.title} className="absolute inset-0 h-full w-full object-cover opacity-45" style={mediaObjectStyle(section.mediaDisplay)} /> : null}
         <div className="relative z-10 max-w-2xl">

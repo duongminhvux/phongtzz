@@ -55,10 +55,12 @@ export function normalizeTour(tour: Tour): Tour {
 }
 
 export function normalizeTourPage(page: TourPage): TourPage {
+  const legacyGallery = normalizeMediaList(page?.gallery)
   return {
     ...(page || {}),
     heroImage: asMedia(page?.heroImage),
-    gallery: normalizeMediaList(page?.gallery),
+    showcaseImage: asMedia(page?.showcaseImage) || legacyGallery[0] || null,
+    gallery: legacyGallery,
   }
 }
 

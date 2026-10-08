@@ -211,7 +211,14 @@ def canonicalize_tour_page_media(db: Session, value: dict[str, Any]) -> dict[str
     data = dict(value or {})
     if data.get('heroImage'):
         data['heroImage'] = canonical_media(db, data.get('heroImage'))
-    data['gallery'] = canonical_media_list(db, data.get('gallery'))
+
+    # Tours overview now uses one configurable showcase image. When an older
+    # database still has gallery[], migrate its first image on the next save.
+    showcase = data.get('showcaseImage')
+    if not showcase and isinstance(data.get('gallery'), list) and data.get('gallery'):
+        showcase = data['gallery'][0]
+    data['showcaseImage'] = canonical_media(db, showcase) if showcase else None
+    data['gallery'] = []
     return data
 
 def set_tour_media(db: Session, tour: Tour, items: Any) -> None:
@@ -270,9 +277,14 @@ def tour_page_assignments(value: dict[str, Any]) -> list[dict[str, Any]]:
     hero = value.get('heroImage')
     if isinstance(hero, dict) and hero.get('asset_id'):
         output.append({'asset_id': hero['asset_id'], 'kind': 'tour_page', 'owner_id': 'default', 'slot': 'heroImage', 'label': 'Tours page: hero', 'sort_order': 0})
-    for index, item in enumerate(value.get('gallery') or []):
-        if isinstance(item, dict) and item.get('asset_id'):
-            output.append({'asset_id': item['asset_id'], 'kind': 'tour_page', 'owner_id': 'default', 'slot': f'gallery.{index}', 'label': f'Tours page: gallery #{index + 1}', 'sort_order': index})
+    showcase = value.get('showcaseImage')
+    if isinstance(showcase, dict) and showcase.get('asset_id'):
+        output.append({'asset_id': showcase['asset_id'], 'kind': 'tour_page', 'owner_id': 'default', 'slot': 'showcaseImage', 'label': 'Tours page: showcase', 'sort_order': 0})
+    else:
+        # Legacy compatibility until the page is saved once in the new admin.
+        for index, item in enumerate((value.get('gallery') or [])[:1]):
+            if isinstance(item, dict) and item.get('asset_id'):
+                output.append({'asset_id': item['asset_id'], 'kind': 'tour_page', 'owner_id': 'default', 'slot': 'showcaseImage', 'label': 'Tours page: showcase', 'sort_order': index})
     return output
 
 def asset_assignments(db: Session) -> dict[str, list[dict[str, Any]]]:

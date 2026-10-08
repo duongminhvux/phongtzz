@@ -118,6 +118,9 @@ export type TourPage = Record<string, any> & {
   whyTitle?: string
   whyItems?: Array<{ title: string; description?: string }>
   galleryTitle?: string
+  showcaseImage?: MediaItem | null
+  showcaseDisplay?: LandingMediaDisplay
+  /** Legacy multi-image field kept only for old DB compatibility. */
   gallery?: MediaItem[]
   reviewsTitle?: string
   reviews?: Array<{ name: string; country?: string; rating?: number; text: string }>

@@ -467,3 +467,11 @@ Welcome main and Gallery main can be styled independently from Admin without cha
 Room cards, room galleries and tour cards/galleries remain fixed at 3:2.
 
 These settings are stored inside the landing JSON (`mediaDisplay` / `imageDisplay`) so no database migration is required. Existing landing records without the new fields continue to render as Container / 100% / no full-bleed.
+
+## Tour edit/delete + Tour showcase (2026-10)
+
+- Tour edit now replaces itinerary rows safely (old rows are flushed before re-inserting the same day numbers), avoiding the PostgreSQL unique-key conflict that could surface in Admin as `Failed to fetch`.
+- Admin uses POST compatibility endpoints for Tour update/delete (`/api/admin/tours/:id/update` and `/api/admin/tours/:id/delete`) while PATCH/DELETE endpoints remain available. This is friendlier to tunnels/proxies that restrict non-POST methods.
+- Deleting a Tour explicitly detaches existing booking requests while preserving their `tour_snapshot` history, then removes itinerary/media links and the Tour.
+- The Tours overview uses a single reusable `showcaseImage` instead of a multi-image gallery. Existing databases automatically use the first legacy `gallery` image until the Tours page is saved once.
+- Tour showcase display settings match Landing showcase controls: aspect ratio, desktop size (40-160%), alignment, crop X/Y, Wide/Full Bleed, mobile full width, and tablet/iPad full width.

@@ -29,7 +29,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
         </div>
       </section>
 
-      <section id="packages" className="px-6 py-24">
+      <section id="packages" className="px-6 py-12">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
             <span className="text-xs uppercase tracking-widest text-black/40">Tour packages</span>
@@ -62,7 +62,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
         </div>
       </section>
 
-      <section className="bg-[#111] px-6 py-24 text-white">
+      <section className="bg-[#111] px-6 py-12 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-2">
             <div><span className="text-xs uppercase tracking-widest text-white/45">Simple logistics</span><h2 className="mt-3 max-w-xl font-serif text-5xl">{page.includedTitle}</h2></div>
@@ -72,7 +72,7 @@ export default function Tours({ page, tours, addons }: { page: TourPage; tours: 
         </div>
       </section>
 
-      <section className="px-6 py-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.whyTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{(page.whyItems || []).map((item, index) => <div key={item.title} className="rounded-[26px] bg-white p-7"><div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">{index === 0 ? <ShieldCheck size={20} /> : index === 1 ? <Clock size={20} /> : <Star size={20} />}</div><h3 className="font-serif text-2xl">{item.title}</h3><p className="mt-3 text-sm leading-6 text-black/55">{item.description}</p></div>)}</div></div></section>
+      <section className="px-6 py-12"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.whyTitle}</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{(page.whyItems || []).map((item, index) => <div key={item.title} className="rounded-[26px] bg-white p-7"><div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">{index === 0 ? <ShieldCheck size={20} /> : index === 1 ? <Clock size={20} /> : <Star size={20} />}</div><h3 className="font-serif text-2xl">{item.title}</h3><p className="mt-3 text-sm leading-6 text-black/55">{item.description}</p></div>)}</div></div></section>
 
       {showcase ? <section className="px-6 pb-24"><div className="mx-auto max-w-7xl"><h2 className="font-serif text-5xl">{page.galleryTitle}</h2><div className="mt-10"><div className={mediaFrameClassName(page.showcaseDisplay, 'overflow-hidden')} style={{ ...mediaFrameStyle(page.showcaseDisplay), borderRadius: 24 }}><img src={mediaUrl(showcase)} alt={showcase.alt || page.galleryTitle || 'Ha Giang Loop'} className="h-full w-full object-cover" style={mediaObjectStyle(page.showcaseDisplay)} /></div></div></div></section> : null}
 

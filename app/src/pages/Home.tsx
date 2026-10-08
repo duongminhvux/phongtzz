@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowRight, Bed, Check, MapPin, Star, Users } from 'lucide-react'
+import { ArrowRight, Bed, Check, ChevronLeft, ChevronRight, MapPin, Star, Users } from 'lucide-react'
 import { asMedia, mediaUrl, normalizeMediaList } from '../lib/media'
 import { mediaFrameClassName, mediaFrameStyle, mediaObjectStyle, normalizeLandingMediaDisplay } from '../lib/landingDisplay'
 import type { LandingPage, LandingSection, Room } from '../types/api'
@@ -178,20 +178,162 @@ function AmenitiesSection({ section }: { section: LandingSection }) {
 }
 
 function TestimonialsSection({ section }: { section: LandingSection }) {
+  const items = section.items || []
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const checkScroll = useCallback(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const { scrollLeft, scrollWidth, clientWidth } = el
+    setCanScrollLeft(scrollLeft > 5)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5)
+
+    const children = Array.from(el.children) as HTMLElement[]
+    if (children.length > 0) {
+      let closestIdx = 0
+      let minDistance = Infinity
+      const containerCenter = scrollLeft + clientWidth / 2
+      children.forEach((child, idx) => {
+        const childCenter = child.offsetLeft + child.offsetWidth / 2
+        const distance = Math.abs(containerCenter - childCenter)
+        if (distance < minDistance) {
+          minDistance = distance
+          closestIdx = idx
+        }
+      })
+      setActiveIndex(closestIdx)
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    checkScroll()
+    window.addEventListener('resize', checkScroll)
+    return () => window.removeEventListener('resize', checkScroll)
+  }, [checkScroll, items.length])
+
+  if (!items.length) return null
+
+  const handlePrev = () => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const cardWidth = (el.children[0] as HTMLElement)?.offsetWidth || el.clientWidth * 0.8
+    el.scrollBy({ left: -(cardWidth + 24), behavior: 'smooth' })
+  }
+
+  const handleNext = () => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const cardWidth = (el.children[0] as HTMLElement)?.offsetWidth || el.clientWidth * 0.8
+    el.scrollBy({ left: cardWidth + 24, behavior: 'smooth' })
+  }
+
+  const scrollToIndex = (idx: number) => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const target = el.children[idx] as HTMLElement
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+    }
+  }
+
   return (
-    <section className="py-8 px-6 bg-white">
+    <section className="py-12 px-6 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <h2 className="font-serif text-center mb-14" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {(section.items || []).map((item: any, index: number) => (
-            <div key={`${item.name}-${index}`} className="rounded-3xl bg-[#f7f5f2] p-8">
-              <div className="mb-4 flex items-center gap-1">{Array.from({ length: Number(item.rating || 5) }).map((_, idx) => <Star key={idx} size={15} fill="#f59e0b" color="#f59e0b" />)}</div>
-              <p className="font-sans text-black/70" style={{ lineHeight: '27px' }}>&ldquo;{item.text}&rdquo;</p>
-              <p className="mt-6 font-serif text-lg">{item.name}</p>
-              <p className="font-sans text-xs uppercase tracking-wider text-black/40">{item.country}</p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
+          <div>
+            <h2 className="font-serif" style={{ fontSize: 'clamp(30px, 4vw, 48px)' }}>{section.title}</h2>
+            {section.description ? (
+              <p className="mt-4 max-w-xl font-sans text-black/60" style={{ lineHeight: '27px' }}>{section.description}</p>
+            ) : null}
+          </div>
+
+          {items.length > 1 && (
+            <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={!canScrollLeft}
+                aria-label="Previous review"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/15 bg-white text-black shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={!canScrollRight}
+                aria-label="Next review"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/15 bg-white text-black shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
-          ))}
+          )}
         </div>
+
+        {/* Horizontal scroll track */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={checkScroll}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 px-1 [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {items.map((item: any, index: number) => {
+            const rating = Math.min(5, Math.max(1, Number(item.rating || 5)))
+            return (
+              <div
+                key={`${item.name}-${index}`}
+                className="snap-start shrink-0 flex flex-col justify-between rounded-3xl bg-[#f7f5f2] p-7 md:p-8 transition-shadow duration-300 hover:shadow-md w-[85vw] sm:w-[380px] md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+              >
+                <div>
+                  <div className="mb-4 flex items-center gap-1">
+                    {Array.from({ length: rating }).map((_, idx) => (
+                      <Star key={idx} size={15} fill="#f59e0b" color="#f59e0b" />
+                    ))}
+                  </div>
+                  <p className="font-sans text-black/75 text-sm sm:text-base" style={{ lineHeight: '27px' }}>
+                    &ldquo;{item.text}&rdquo;
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-black/5 flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/10 font-serif font-medium text-black">
+                    {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg font-medium leading-tight">{item.name}</p>
+                    {item.country && (
+                      <p className="font-sans text-xs uppercase tracking-wider text-black/40 mt-0.5">{item.country}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Dots indicator */}
+        {items.length > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {items.map((_: any, idx: number) => (
+              <button
+                key={idx}
+                type="button"
+                aria-label={`Go to slide ${idx + 1}`}
+                onClick={() => scrollToIndex(idx)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  idx === activeIndex
+                    ? 'w-7 bg-black'
+                    : 'w-2 bg-black/20 hover:bg-black/40'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

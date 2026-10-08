@@ -11,9 +11,9 @@ export default function Footer({ landing }: { landing: LandingPage }) {
 
   return (
     <footer style={{ backgroundColor: 'var(--page-bg, #f7f5f2)' }}>
-      <div className="mx-auto max-w-7xl px-6 pb-16 pt-28">
+      <div className="mx-auto max-w-7xl px-6 pb-16 pt-10">
         {footer.showCta !== false && cta.title ? (
-          <div className="mb-16">
+          <div className="mb-10">
             <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(36px, 5vw, 78px)', lineHeight: '1.05' }}>{cta.title}</h2>
             {cta.description ? <p className="mt-4 max-w-2xl font-sans text-lg text-black/60">{cta.description}</p> : null}
             {cta.buttonText ? <Link to={cta.buttonLink || '/contact'} className="btn-pill mt-8 text-xs uppercase tracking-wider text-white" style={{ backgroundColor: 'var(--primary-color)' }}>{cta.buttonText}</Link> : null}
